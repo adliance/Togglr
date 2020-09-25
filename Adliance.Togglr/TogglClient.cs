@@ -23,7 +23,7 @@ namespace Togglr
 
             var detailedReports = await client.GetDetailedReport(new DetailedReportConfig
             (
-                userAgent: "Togglr by Adliance GmbH",
+                userAgent: "Adliance.Togglr by Adliance GmbH",
                 workspaceId: configuration.WorkspaceId, //Adliance workspace
                 since: from,
                 until: to

@@ -26,8 +26,8 @@ namespace Togglr
             CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("de-DE");
             var logger = LogManager.GetCurrentClassLogger();
 
-            logger.Info("Welcome to Togglr.");
-            logger.Trace($"You're running Togglr v{typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}.");
+            logger.Info("Welcome to Adliance.Togglr.");
+            logger.Trace($"You're running Adliance.Togglr v{typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}.");
 
             try
             {
