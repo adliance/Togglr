@@ -7,6 +7,13 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>Adliance.Togglr</RootNamespace>
+
+    <!-- .net tool -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>Adliance.Togglr</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <!-- .net tool -->
+    
   </PropertyGroup>
 
   <ItemGroup>
