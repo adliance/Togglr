@@ -18,11 +18,11 @@ namespace Adliance.Togglr
 {
     public class TogglrReportGeneratorService
     {
-        private readonly TogglrReportGeneratorConfiguration _togglrReportGeneratorConfiguration;
+        private readonly TogglrReportGeneratorParameter _togglrReportGeneratorParameter;
         
-        public TogglrReportGeneratorService(TogglrReportGeneratorConfiguration togglrReportGeneratorConfiguration)
+        public TogglrReportGeneratorService(TogglrReportGeneratorParameter togglrReportGeneratorParameter)
         {
-            _togglrReportGeneratorConfiguration = togglrReportGeneratorConfiguration;
+            _togglrReportGeneratorParameter = togglrReportGeneratorParameter;
         }
 
         private Configuration Configuration { get; set; } = new Configuration();
@@ -39,11 +39,11 @@ namespace Adliance.Togglr
 
             try
             {
-                Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_togglrReportGeneratorConfiguration.ConfigurationFilePath));
+                Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_togglrReportGeneratorParameter.ConfigurationFilePath));
             }
             catch (Exception ex)
             {
-                logger.Fatal(ex, $"Unable to load {_togglrReportGeneratorConfiguration.ConfigurationFilePath}: {ex.Message}");
+                logger.Fatal(ex, $"Unable to load {_togglrReportGeneratorParameter.ConfigurationFilePath}: {ex.Message}");
                 return ExitCode.Error;
             }
 
