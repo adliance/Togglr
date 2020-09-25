@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CommandLine;
+using CommandLine.Text;
 
 namespace Adliance.Togglr
 {
@@ -22,6 +23,13 @@ namespace Adliance.Togglr
             {
                 var exitCode = await new TogglrConfigurationGeneratorService(configuration).Run();
                 ExitWith(exitCode);
+            });
+            
+            parserResult.WithNotParsed(errs =>
+            {
+                var helpText = HelpText.AutoBuild(parserResult, h => HelpText.DefaultParsingErrorsHandler(parserResult, h), e => e);
+                Console.Error.Write(helpText);
+                ExitWith(ExitCode.Parameters);
             });
         }
         
