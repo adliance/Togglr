@@ -12,9 +12,9 @@ using NLog.Config;
 using NLog.Layouts;
 using NLog.Targets;
 using TogglApi.Client.Reports.Models.Response;
-using Togglr.Extensions;
+using Adliance.Togglr.Extensions;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public class Program
     {

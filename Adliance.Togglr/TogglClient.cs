@@ -9,7 +9,7 @@ using TogglApi.Client.Reports;
 using TogglApi.Client.Reports.Models;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public class TogglClient
     {

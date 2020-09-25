@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using TogglApi.Client.Reports.Models.Response;
-using Togglr.Extensions;
+using Adliance.Togglr.Extensions;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public class CalculationService
     {

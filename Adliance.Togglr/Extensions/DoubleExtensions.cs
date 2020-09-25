@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Togglr.Extensions
+namespace Adliance.Togglr.Extensions
 {
     public static class DoubleExtensions
     {

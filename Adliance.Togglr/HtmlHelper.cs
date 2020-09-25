@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public static class HtmlHelper
     {
