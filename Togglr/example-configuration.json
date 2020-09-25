@@ -1,0 +1,44 @@
+﻿{
+  "api_token": "",
+  "workspace_id": 0,
+  
+  "project_vacation": "Urlaub",
+  "project_special_vacation": "Sonderurlaub",
+  "project_holiday": "Feiertag",
+  "project_personal_holiday": "Persönlicher Feiertag",
+  "project_sick": "Krankenstand",
+  "project_doctor": "Arztbesuch",
+  
+  "users": [
+    {
+      "name": "Teammember 1",
+      "begin": "2018-04-03",
+      "hours_per_day": 7.7,
+      "different_work_times": [
+        {
+          "begin": "2019-06-01",
+          "end": "2019-06-30",
+          "hours_per_day": 0.233
+        },
+        {
+          "begin": "2020-06-01",
+          "end": "2022-06-30",
+          "hours_per_day": 4,
+          "reset_holidays": 0,
+          "reset_overtime": 0
+        }
+      ]
+    },
+    {
+      "name": "Teammember 2",
+      "begin": "2019-11-03",
+      "hours_per_day": 7.7
+    },
+    {
+      "name": "Teammember 3",
+      "begin": "2020-01-01",
+      "end": "2020-06-30",
+      "hours_per_day": 4
+    }
+  ]
+}
