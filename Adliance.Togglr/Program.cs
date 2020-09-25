@@ -8,9 +8,9 @@ namespace Adliance.Togglr
     {
         public static async Task Main(string[] args)
         {
-            var parserResult = Parser.Default.ParseArguments<TogglrConfiguration>(args);
+            var parserResult = Parser.Default.ParseArguments<TogglrReportGeneratorConfiguration>(args);
             
-            await parserResult.WithParsedAsync<TogglrConfiguration>(async configuration =>
+            await parserResult.WithParsedAsync<TogglrReportGeneratorConfiguration>(async configuration =>
             {
                 var exitCode = await new TogglrReportGeneratorService(configuration).Run();
                 ExitWith(exitCode);
