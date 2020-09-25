@@ -153,7 +153,7 @@ namespace Adliance.Togglr
                     d.Warnings.Add("Wochenende, kein Urlaub/Sonderurlaub/Krankenstand/Feiertag möglich.");
                 }
 
-                var holidaysOfOthers = Program.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
+                var holidaysOfOthers = TogglrReportGeneratorService.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
                 if (d.Specials[Special.Holiday] <= 0 && holidaysOfOthers.Any())
                 {
                     if (d.Date.Month == 12 && (d.Date.Day == 24 || d.Date.Day == 31))
