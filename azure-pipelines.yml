@@ -1,0 +1,69 @@
+name: 1.0.$(Rev:r)
+
+resources:
+- repo: self
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/*
+
+pool:
+  vmImage: 'windows-latest'
+  
+steps:
+- checkout: self
+  clean: true
+
+- task: UseDotNet@2 
+  displayName: "Install .NET Core 3.1.x"
+  inputs:
+    version: '3.1.x'
+    packageType: sdk
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: './src/Adliance.AzureTools/Adliance.AzureTools.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Install Set Version'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'install -g dotnet-setversion'
+- script: |
+    cd src/Adliance.AzureTools
+    setversion $(Build.BuildNumber)
+  displayName: 'Set Version'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: './src/Adliance.AzureTools/Adliance.AzureTools.csproj'
+    arguments: '--configuration Release'
+
+- task: DotNetCoreCLI@2
+  displayName: DotNet Pack
+  inputs:
+    command: pack
+    packagesToPack: './src/Adliance.AzureTools/Adliance.AzureTools.csproj'
+    versioningScheme: byBuildNumber
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+
+- task: NuGetCommand@2
+  displayName: NuGet Push
+  inputs:
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: 'Public NuGet'
+
+
