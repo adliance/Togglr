@@ -13,18 +13,19 @@ Togglr generates a nice looking HTML file for each team member. There's an overv
 
 ## Run as dotnet tool
 
-This project is prepared to be install the CLI as `dotnet tool`. Please navigate to the project folder of `Adliance.Togglr` and enter the following command in your favourite terminal.
+This project can be packed and installed as `dotnet tool`. Therefore, please navigate to the project folder of `Adliance.Togglr` with your favourite terminal and enter the following commands.
 ```
 dotnet pack
 dotnet tool install --global --add-source ./nupkg adliance.togglr
 ```
-Once installed as global tool, you can use it from the terminal by simply calling 
+
+Once installed as global tool, `togglr` can be used from the terminal by calling
 ```
 togglr --help
 ```
 
 ## Commandline interface
-With togglr CLI you can generate an template configuration and generate the report using a certain configuration. Type `-- help` to show the supported arguments.
+Togglr CLI supportes functions to generate a template configuration and to generate a report using a certain configuration. Type `togglr -- help` to display the supported arguments.
 
 ```
 togglr --help
@@ -48,8 +49,8 @@ Adliance GmbH
 ```
 
 ### Generate template configuration
-To generate a configuration template, use the command `generate-configuration`. The configuration will be generated in the current folder and called `configuration.json`.
-You can [edit the configuration](#Configuration) to meet your needs.
+To generate a configuration template, the command `generate-configuration` can be used. The configuration will be generated in by default in the current folder and named `configuration.json`. A custom target filename is also supported.
+Please [edit the generated template configuration](#Configuration) to meet your needs.
 
 ```
 togglr generate-configuration --help
@@ -64,7 +65,7 @@ Adliance GmbH
 ```
 
 ### Generate a report with a configuration
-Once there is a valid configuration, you can easily generate a report based on the provided configuration. Use the command `generate-report` to use this feature. Find next the help output of this command.
+Once there is a valid configuration, a report can be easily generated with the command `generate-report`. Just provide a configuration (`configuration.json` by default or set a custom path via arguments). Find the help output of this command next.
 ```
 togglr generate-report --help
 Adliance.Togglr
