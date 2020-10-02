@@ -28,7 +28,7 @@ steps:
   displayName: Restore
   inputs:
     command: restore
-    projects: './src/Adliance.AzureTools/Adliance.AzureTools.csproj'
+    projects: './src/Adliance.Togglr/Adliance.Togglr.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: 'Install Set Version'
@@ -37,21 +37,21 @@ steps:
     custom: tool
     arguments: 'install -g dotnet-setversion'
 - script: |
-    cd src/Adliance.AzureTools
+    cd src/Adliance.Togglr
     setversion $(Build.BuildNumber)
   displayName: 'Set Version'
 
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
-    projects: './src/Adliance.AzureTools/Adliance.AzureTools.csproj'
+    projects: './src/Adliance.Togglr/Adliance.Togglr.csproj'
     arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
   displayName: DotNet Pack
   inputs:
     command: pack
-    packagesToPack: './src/Adliance.AzureTools/Adliance.AzureTools.csproj'
+    packagesToPack: './src/Adliance.Togglr/Adliance.Togglr.csproj'
     versioningScheme: byBuildNumber
 
 - task: PublishBuildArtifacts@1
