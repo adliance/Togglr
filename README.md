@@ -1,5 +1,8 @@
 # Togglr
 
+[![Build Status](https://dev.azure.com/adliance/Open%20Source%20Projects/_apis/build/status/Togglr?branchName=master)](https://dev.azure.com/adliance/Open%20Source%20Projects/_build/latest?definitionId=95&branchName=master)
+[![NuGet](https://img.shields.io/nuget/v/Adliance.Togglr.svg)](https://www.nuget.org/packages/Adliance.Togglr/)
+
 Togglr is our tool to fetch time entries from Toggl Track (www.toggl.com) and generates nice-looking HTML reports for each team member.
 
 Toggl Track is very powerful and nice to use when tracking the time spent on working on specific projects. But Toggl Track is incredibly bad to use it to track for remaining holidays or sick days of specific team members, because it's missing the required kinds of reports. This is especially true for all the little quirks of Austrian labor laws, like the requirement that one needs to make a break after 6 hours of work time.
