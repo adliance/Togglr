@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Togglr.Extensions
+namespace Adliance.Togglr.Extensions
 {
     public static class EnumerableExtensions
     {

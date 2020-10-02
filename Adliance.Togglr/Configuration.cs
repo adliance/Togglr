@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public class Configuration
     {

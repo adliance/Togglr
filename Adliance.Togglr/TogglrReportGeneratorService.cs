@@ -6,21 +6,29 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Adliance.Togglr.Extensions;
 using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Layouts;
 using NLog.Targets;
 using TogglApi.Client.Reports.Models.Response;
-using Togglr.Extensions;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
-    public class Program
+    public class TogglrReportGeneratorService
     {
-        public static List<DetailedReportDatum> AllEntries = new List<DetailedReportDatum>();
+        private readonly TogglrReportGeneratorParameter _togglrReportGeneratorParameter;
+        
+        public TogglrReportGeneratorService(TogglrReportGeneratorParameter togglrReportGeneratorParameter)
+        {
+            _togglrReportGeneratorParameter = togglrReportGeneratorParameter;
+        }
 
-        public static async Task Main()
+        private Configuration Configuration { get; set; } = new Configuration();
+        public static List<DetailedReportDatum> AllEntries = new List<DetailedReportDatum>();
+        
+        public async Task<ExitCode> Run()
         {
             SetupLogging();
             CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("de-DE");
@@ -31,18 +39,18 @@ namespace Togglr
 
             try
             {
-                Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync("configuration.json"));
+                Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_togglrReportGeneratorParameter.ConfigurationFilePath));
             }
             catch (Exception ex)
             {
-                logger.Fatal(ex, $"Unable to load configuration.json: {ex.Message}");
-                Environment.Exit(-1);
+                logger.Fatal(ex, $"Unable to load {_togglrReportGeneratorParameter.ConfigurationFilePath}: {ex.Message}");
+                return ExitCode.Error;
             }
 
             if (Configuration.WorkspaceId == default || string.IsNullOrWhiteSpace(Configuration.ApiToken))
             {
                 logger.Fatal("API Token or Workspace ID not configured in configuration.json");
-                Environment.Exit(-1);
+                return ExitCode.Error;
             }
 
             logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
@@ -83,10 +91,9 @@ namespace Togglr
             }
 
             logger.Info("Everything done. Goodbye.");
+            return ExitCode.Ok;
         }
-
-        private static Configuration Configuration { get; set; } = new Configuration();
-
+        
         private static void SetupLogging()
         {
             var loggingConfig = new LoggingConfiguration();

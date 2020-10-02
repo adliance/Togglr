@@ -1,7 +1,7 @@
 ﻿using System;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Togglr.Extensions
+namespace Adliance.Togglr.Extensions
 {
     public static class EntryExtensions
     {
