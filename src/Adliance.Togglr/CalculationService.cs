@@ -175,7 +175,7 @@ namespace Adliance.Togglr
 
             var result = User.HoursPerDay;
 
-            var differentWorkTime = User.DifferentWorkTimes.FirstOrDefault(x => day.Date >= x.Begin.Date && day.Date.AddDays(1).AddSeconds(-1) <= x.End.Date);
+            var differentWorkTime = User.DifferentWorkTimes.FirstOrDefault(x => day.Date >= x.Begin.Date && day.Date <= x.End.Date.AddDays(1).AddSeconds(-1));
             if (differentWorkTime != null)
             {
                 result = differentWorkTime.HoursPerDay;
