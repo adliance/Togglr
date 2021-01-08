@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Togglr.Extensions;
+using Adliance.Togglr.Extensions;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public static class DayStatistics
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using TogglApi.Client.Reports.Models.Response;
-using Togglr.Extensions;
+using Adliance.Togglr.Extensions;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public class CalculationService
     {
@@ -153,7 +153,7 @@ namespace Togglr
                     d.Warnings.Add("Wochenende, kein Urlaub/Sonderurlaub/Krankenstand/Feiertag möglich.");
                 }
 
-                var holidaysOfOthers = Program.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
+                var holidaysOfOthers = TogglrReportGeneratorService.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
                 if (d.Specials[Special.Holiday] <= 0 && holidaysOfOthers.Any())
                 {
                     if (d.Date.Month == 12 && (d.Date.Day == 24 || d.Date.Day == 31))
@@ -175,7 +175,7 @@ namespace Togglr
 
             var result = User.HoursPerDay;
 
-            var differentWorkTime = User.DifferentWorkTimes.FirstOrDefault(x => day.Date >= x.Begin.Date && day.Date.AddDays(1).AddSeconds(-1) <= x.End.Date);
+            var differentWorkTime = User.DifferentWorkTimes.FirstOrDefault(x => day.Date >= x.Begin.Date && day.Date <= x.End.Date.AddDays(1).AddSeconds(-1));
             if (differentWorkTime != null)
             {
                 result = differentWorkTime.HoursPerDay;

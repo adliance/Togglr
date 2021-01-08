@@ -9,7 +9,7 @@ using TogglApi.Client.Reports;
 using TogglApi.Client.Reports.Models;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Togglr
+namespace Adliance.Togglr
 {
     public class TogglClient
     {
@@ -23,7 +23,7 @@ namespace Togglr
 
             var detailedReports = await client.GetDetailedReport(new DetailedReportConfig
             (
-                userAgent: "Togglr by Adliance GmbH",
+                userAgent: "Adliance.Togglr by Adliance GmbH",
                 workspaceId: configuration.WorkspaceId, //Adliance workspace
                 since: from,
                 until: to

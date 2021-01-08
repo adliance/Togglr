@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Togglr.Extensions
+namespace Adliance.Togglr.Extensions
 {
     public static class DateTimeExtensions
     {
