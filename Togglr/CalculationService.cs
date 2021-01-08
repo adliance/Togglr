@@ -133,7 +133,7 @@ namespace Togglr
 
                 if (d.Specials[Special.PersonalHoliday] > 0 && Math.Abs(d.Specials[Special.PersonalHoliday] - d.Expected) > 0.01)
                 {
-                    d.Warnings.Add($"Persönlicher Feiertag ist für {d.Specials[Special.Holiday]:N2}h eingetragen, es müssten aber {d.Expected:N2}h sein.");
+                    d.Warnings.Add($"Persönlicher Feiertag ist für {d.Specials[Special.PersonalHoliday]:N2}h eingetragen, es müssten aber {d.Expected:N2}h sein.");
                 }
                 else if (d.Specials[Special.Sick] > 0 && Math.Abs(d.Specials[Special.Sick] - d.Expected) > 0.01)
                 {
