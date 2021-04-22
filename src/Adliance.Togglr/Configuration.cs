@@ -28,6 +28,7 @@ namespace Adliance.Togglr
     public class UserConfiguration
     {
         [JsonProperty("name")] public string Name { get; set; } = "";
+        [JsonProperty("create_report")] public bool CreateReport { get; set; } = true;
         [JsonProperty("different_work_times")] public IList<ExpectedWorkTimeConfiguration> DifferentWorkTimes { get; set; } = new List<ExpectedWorkTimeConfiguration>();
 
         [JsonProperty("begin")] public DateTime Begin { get; set; }

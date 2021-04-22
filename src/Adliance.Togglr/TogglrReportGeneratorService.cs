@@ -61,18 +61,25 @@ namespace Adliance.Togglr
 
             foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
             {
-                logger.Info($"Working on {userPair.Key}...");
-
-                var sb = new StringBuilder();
-                HtmlHelper.WriteHtmlBegin(sb);
-                HtmlHelper.WriteDocumentTitle(sb, userPair.Key);
-
                 var userConfiguration = Configuration.Users.SingleOrDefault(x => x.Name.Equals(userPair.Key, StringComparison.InvariantCultureIgnoreCase));
                 if (userConfiguration == null)
                 {
                     logger.Warn($"No configuration found for {userPair.Key}. Ignoring this user ...");
                     continue;
                 }
+
+                if (!userConfiguration.CreateReport)
+                {
+                    logger.Warn($"No report should be created for {userPair.Key}. Ignoring this user ...");
+                    continue;
+                }
+                
+                logger.Info($"Working on {userPair.Key}...");
+
+                var sb = new StringBuilder();
+                HtmlHelper.WriteHtmlBegin(sb);
+                HtmlHelper.WriteDocumentTitle(sb, userPair.Key);
+
 
                 userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date.AddDays(1) : userConfiguration.End;
 
