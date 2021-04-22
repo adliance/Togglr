@@ -12,10 +12,10 @@
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <Version>0.0.0</Version>
     <FileVersion>0.0.0.0</FileVersion>
-    <Authors>Hannes Sachsenhofer, Christoph Kopf</Authors>
+    <Authors>Hannes Sachsenhofer, Christoph Kopf, Philipp Burndorfer</Authors>
     <Company>Adliance GmbH</Company>
     <Product>Adliance.Togglr</Product>
-    <Description>Toggl client to generate reports.</Description>
+    <Description>Takes Toggl time entries and generates nice looking HTML reports in accordance to Austrian labor laws.</Description>
     <Copyright>Adliance GmbH</Copyright>
     <PackageProjectUrl>https://www.adliance.net</PackageProjectUrl>
     
