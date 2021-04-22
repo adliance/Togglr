@@ -81,7 +81,7 @@ namespace Adliance.Togglr
                 HtmlHelper.WriteDocumentTitle(sb, userPair.Key);
 
 
-                userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date.AddDays(1) : userConfiguration.End;
+                userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date : userConfiguration.End;
 
                 var calculationService = new CalculationService(userConfiguration, userPair.Value, Configuration.HomeOfficeStart ?? DateTime.MaxValue);
                 MonthStatistics.WriteEveryMonth(sb, calculationService);
