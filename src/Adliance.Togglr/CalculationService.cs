@@ -19,16 +19,16 @@ namespace Adliance.Togglr
             {
                 var d = new Day(dayPair.Key.Date)
                 {
-                    Total = dayPair.Value.Sum(x => (x.End - x.Start).TotalHours),
+                    Total = Math.Round(dayPair.Value.Sum(x => (x.End - x.Start).TotalHours), 2),
                     Specials =
                     {
-                        [Special.Doctor] = dayPair.Value.Where(x => x.IsDoctor()).Sum(x => (x.End - x.Start).TotalHours),
-                        [Special.Holiday] = dayPair.Value.Where(x => x.IsHoliday()).Sum(x => (x.End - x.Start).TotalHours),
-                        [Special.PersonalHoliday] = dayPair.Value.Where(x => x.IsPersonalHoliday()).Sum(x => (x.End - x.Start).TotalHours),
-                        [Special.Sick] = dayPair.Value.Where(x => x.IsSick()).Sum(x => (x.End - x.Start).TotalHours),
-                        [Special.Vacation] = dayPair.Value.Where(x => x.IsVacation()).Sum(x => (x.End - x.Start).TotalHours),
-                        [Special.SpecialVacation] = dayPair.Value.Where(x => x.IsSpecialVacation()).Sum(x => (x.End - x.Start).TotalHours),
-                        [Special.LegacyVacationHolidaySick] = dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours),
+                        [Special.Doctor] = Math.Round(dayPair.Value.Where(x => x.IsDoctor()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                        [Special.Holiday] = Math.Round(dayPair.Value.Where(x => x.IsHoliday()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                        [Special.PersonalHoliday] = Math.Round(dayPair.Value.Where(x => x.IsPersonalHoliday()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                        [Special.Sick] = Math.Round(dayPair.Value.Where(x => x.IsSick()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                        [Special.Vacation] = Math.Round(dayPair.Value.Where(x => x.IsVacation()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                        [Special.SpecialVacation] = Math.Round(dayPair.Value.Where(x => x.IsSpecialVacation()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                        [Special.LegacyVacationHolidaySick] = Math.Round(dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours), 2)
                     },
                     Expected = GetExpectedHours(dayPair.Key)
                 };
@@ -53,7 +53,7 @@ namespace Adliance.Togglr
             AddMissingDays();
             CalculateRollingOvertime();
             CalculateRollingVacation();
-            AddWarnings();
+            AddWarnings(user.IgnoreBreakWarnings);
         }
 
         private void AddMissingDays()
@@ -112,13 +112,16 @@ namespace Adliance.Togglr
             }
         }
 
-        private void AddWarnings()
+        private void AddWarnings(bool ignoreBreakWarnings)
         {
             foreach (var d in Days.Select(x => x.Value))
             {
-                if (d.Total - d.Specials.Sum(x => x.Value) > 6 && !d.Has30MinutesBreak)
+                if (!ignoreBreakWarnings)
                 {
-                    d.Warnings.Add("Pause von mindestens 30 Minuten fehlt.");
+                    if (d.Total - d.Specials.Sum(x => x.Value) > 6 && !d.Has30MinutesBreak)
+                    {
+                        d.Warnings.Add("Pause von mindestens 30 Minuten fehlt.");
+                    }
                 }
 
                 if (d.Specials[Special.LegacyVacationHolidaySick] > 0)
@@ -206,7 +209,7 @@ namespace Adliance.Togglr
             public double Expected { get; set; }
             public double Overtime => Total - Expected;
             public double RollingOvertime { get; set; }
-            
+
             public double RollingVacationInDays { get; set; }
 
             public IDictionary<Special, double> Specials { get; } = new Dictionary<Special, double>();

@@ -19,7 +19,7 @@ namespace Adliance.Togglr
     public class TogglrReportGeneratorService
     {
         private readonly TogglrReportGeneratorParameter _togglrReportGeneratorParameter;
-        
+
         public TogglrReportGeneratorService(TogglrReportGeneratorParameter togglrReportGeneratorParameter)
         {
             _togglrReportGeneratorParameter = togglrReportGeneratorParameter;
@@ -27,7 +27,7 @@ namespace Adliance.Togglr
 
         private Configuration Configuration { get; set; } = new Configuration();
         public static List<DetailedReportDatum> AllEntries = new List<DetailedReportDatum>();
-        
+
         public async Task<ExitCode> Run()
         {
             SetupLogging();
@@ -74,7 +74,7 @@ namespace Adliance.Togglr
                     continue;
                 }
 
-                userConfiguration.End = userConfiguration.End == default ? DateTime.UtcNow.Date.AddDays(1) : userConfiguration.End;
+                userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date.AddDays(1) : userConfiguration.End;
 
                 var calculationService = new CalculationService(userConfiguration, userPair.Value);
                 MonthStatistics.WriteEveryMonth(sb, calculationService);
@@ -93,7 +93,7 @@ namespace Adliance.Togglr
             logger.Info("Everything done. Goodbye.");
             return ExitCode.Ok;
         }
-        
+
         private static void SetupLogging()
         {
             var loggingConfig = new LoggingConfiguration();

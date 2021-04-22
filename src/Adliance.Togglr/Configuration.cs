@@ -17,6 +17,7 @@ namespace Adliance.Togglr
         [JsonProperty("project_doctor")] public string ProjectNameDoctor  { get; set; } = "Arztbesuch";
         [JsonProperty("project_legacy_vacation_holiday_sick")] public string ProjectNameLegacyVacationHolidaySick  { get; set; } = "ALT: Feiertag, Krankenstand, Urlaub";
         
+        
         [JsonProperty("end")] public DateTime? End { get; set; }
         [JsonProperty("users")] public IList<UserConfiguration> Users { get; set; } = new List<UserConfiguration>();
     }
@@ -32,6 +33,8 @@ namespace Adliance.Togglr
         [JsonProperty("hours_per_day")] public double HoursPerDay { get; set; }
         [JsonProperty("reset_overtime")] public double ResetOvertime { get; set; }
         [JsonProperty("reset_holidays")] public double ResetHolidays { get; set; }
+
+        [JsonProperty("ignore_break_warnings")] public bool IgnoreBreakWarnings { get; set; } = false;
     }
 
     public class ExpectedWorkTimeConfiguration
