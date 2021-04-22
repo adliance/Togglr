@@ -19,7 +19,8 @@ namespace Adliance.Togglr
             sb.AppendLine("<th class=\"has-text-right\">Pause (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Überst. (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Saldo (h)</th>");
-            sb.AppendLine("<th>Anmerkungen</th>");
+            sb.AppendLine("<th>HomeOffice</th>");
+            sb.AppendLine("<th>Sonstiges</th>");
             sb.AppendLine("</tr></thead>");
             sb.AppendLine("<tbody>");
 
@@ -61,6 +62,15 @@ namespace Adliance.Togglr
                 ? $"<td class=\"has-text-right has-text-success\">{day.RollingOvertime.FormatColor()}</td>"
                 : "<td></td>");
 
+            if (day.IsHomeOffice)
+            {
+                sb.AppendLine("<td class=\"has-text-centered\">✔</td>");
+            }
+            else
+            {
+                sb.AppendLine("<td></td>");
+            }
+            
             sb.Append("<td>");
             foreach (var s in day.Specials.Where(x => x.Value > 0))
             {

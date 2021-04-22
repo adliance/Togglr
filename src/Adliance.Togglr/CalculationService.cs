@@ -11,7 +11,7 @@ namespace Adliance.Togglr
         private UserConfiguration User { get; }
         public IDictionary<DateTime, Day> Days { get; }
 
-        public CalculationService(UserConfiguration user, IList<DetailedReportDatum> entries)
+        public CalculationService(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
         {
             User = user;
             var days = new List<Day>();
@@ -30,8 +30,22 @@ namespace Adliance.Togglr
                         [Special.SpecialVacation] = Math.Round(dayPair.Value.Where(x => x.IsSpecialVacation()).Sum(x => (x.End - x.Start).TotalHours), 2),
                         [Special.LegacyVacationHolidaySick] = Math.Round(dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours), 2)
                     },
-                    Expected = GetExpectedHours(dayPair.Key)
+                    Expected = GetExpectedHours(dayPair.Key),
                 };
+
+                if (d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
+                {
+                    d.IsHomeOffice = user.HomeOfficeWeekdays.Contains(d.DayOfWeek);
+                    if (user.HomeOfficeDeviation.Any(x => x.Date == d.Date))
+                    {
+                        d.IsHomeOffice = !d.IsHomeOffice;
+                    }
+                }
+                else
+                {
+                    d.IsHomeOffice = false;
+                }
+
 
                 DetailedReportDatum? previousEntry = null;
                 foreach (var e in dayPair.Value.OrderBy(x => x.Start))
@@ -40,7 +54,7 @@ namespace Adliance.Togglr
                     {
                         var difference = e.Start - previousEntry.End;
                         d.Breaks += difference.TotalHours;
-                        d.Has30MinutesBreak = d.Has30MinutesBreak || difference.TotalMinutes > 29.8; // don't use 30, because for some reason Toggl sometimes has times like 11:29:55 instead of 11:30:00
+                        d.Has30MinutesBreak = d.Has30MinutesBreak || Math.Round(difference.TotalMinutes, 9) >= 30;
                     }
 
                     previousEntry = e;
@@ -209,9 +223,9 @@ namespace Adliance.Togglr
             public double Expected { get; set; }
             public double Overtime => Total - Expected;
             public double RollingOvertime { get; set; }
-
+            public bool IsHomeOffice { get; set; }
             public double RollingVacationInDays { get; set; }
-
+            public DayOfWeek DayOfWeek => Date.DayOfWeek;
             public IDictionary<Special, double> Specials { get; } = new Dictionary<Special, double>();
             public IList<string> Warnings { get; } = new List<string>();
         }

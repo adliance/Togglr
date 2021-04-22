@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
-    <LangVersion>Latest</LangVersion>
+    <LangVersion>default</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     
     <AssemblyName>Adliance.Togglr</AssemblyName>
@@ -19,13 +19,12 @@
     <Copyright>Adliance GmbH</Copyright>
     <PackageProjectUrl>https://www.adliance.net</PackageProjectUrl>
     
-    <!-- .net tool -->
+    <!-- .NET tool -->
     <PackAsTool>true</PackAsTool>
     <IsPackable>true</IsPackable>
     <ToolCommandName>togglr</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <PackageId>Adliance.Togglr</PackageId>
-    <!-- .net tool -->
   </PropertyGroup>
 
   <ItemGroup>

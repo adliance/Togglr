@@ -25,8 +25,8 @@ namespace Adliance.Togglr
             _togglrReportGeneratorParameter = togglrReportGeneratorParameter;
         }
 
-        private Configuration Configuration { get; set; } = new Configuration();
-        public static List<DetailedReportDatum> AllEntries = new List<DetailedReportDatum>();
+        private Configuration Configuration { get; set; } = new();
+        public static List<DetailedReportDatum> AllEntries = new();
 
         public async Task<ExitCode> Run()
         {
@@ -56,7 +56,7 @@ namespace Adliance.Togglr
             logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
             var togglClient = new TogglClient();
-            await togglClient.DownloadEntriesAndStoreLocally(Configuration);
+            // await togglClient.DownloadEntriesAndStoreLocally(Configuration);
             AllEntries = togglClient.LoadEntriesLocallyAndFix();
 
             foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
@@ -76,7 +76,7 @@ namespace Adliance.Togglr
 
                 userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date.AddDays(1) : userConfiguration.End;
 
-                var calculationService = new CalculationService(userConfiguration, userPair.Value);
+                var calculationService = new CalculationService(userConfiguration, userPair.Value, Configuration.HomeOfficeStart ?? DateTime.MaxValue);
                 MonthStatistics.WriteEveryMonth(sb, calculationService);
 
                 var loopDate = new DateTime(userConfiguration.End.Year, userConfiguration.End.Month, 1);
