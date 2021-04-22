@@ -18,17 +18,11 @@ steps:
 - checkout: self
   clean: true
 
-- task: UseDotNet@2 
+- task: UseDotNet@2
   displayName: "Install .NET Core 3.1.x"
   inputs:
     version: '3.1.x'
-    packageType: sdk
-
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: './src/Adliance.Togglr/Adliance.Togglr.csproj'
+    packageType: runtime
 
 - task: DotNetCoreCLI@2
   displayName: 'Install Set Version'
@@ -36,10 +30,23 @@ steps:
     command: custom
     custom: tool
     arguments: 'install -g dotnet-setversion'
+    
 - script: |
     cd src/Adliance.Togglr
     setversion $(Build.BuildNumber)
   displayName: 'Set Version'
+
+- task: UseDotNet@2
+  displayName: "Install .NET Core 5.0.x"
+  inputs:
+    version: '5.0.x'
+    packageType: sdk
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: './src/Adliance.Togglr/Adliance.Togglr.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: Build
