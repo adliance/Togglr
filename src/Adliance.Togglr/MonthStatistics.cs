@@ -15,6 +15,7 @@ namespace Adliance.Togglr
             sb.AppendLine("<th>Monat</th>");
             sb.AppendLine("<th class=\"has-text-right\">Soll (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Ist (h)</th>");
+            sb.AppendLine("<th class=\"has-text-right\">Verr. (%)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Überst. (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Saldo (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">HomeOffice (T)</th>");
@@ -36,6 +37,7 @@ namespace Adliance.Togglr
                 sb.AppendLine($"<td>{loopDate:MMMM yyyy}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Expected):N2}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Total):N2}</td>");
+                sb.AppendLine($"<td class=\"has-text-right\">{(100d / entries.Sum(x => x.BillableBase) * entries.Sum(x => x.BillableActual)).FormatBillable()}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Overtime).FormatColor()}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{entries.Last().RollingOvertime.FormatColor()}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.IsHomeOffice)}</td>");
@@ -56,8 +58,9 @@ namespace Adliance.Togglr
             sb.AppendLine("<th></th>");
             sb.AppendLine("<th></th>");
             sb.AppendLine("<th></th>");
-            sb.AppendLine("<th></th>");
             var allEntries = calculationService.Days.OrderBy(x => x.Key).Select(x => x.Value).ToList();
+            sb.AppendLine($"<td class=\"has-text-right\">{(100d / allEntries.Sum(x => x.BillableBase) * allEntries.Sum(x => x.BillableActual)).FormatBillable()}</td>");
+            sb.AppendLine("<th></th>");
             sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Last().RollingOvertime.FormatColor()}</th>");
             sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.IsHomeOffice)}</th>");
             sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</th>");

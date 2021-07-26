@@ -16,6 +16,7 @@ namespace Adliance.Togglr
             sb.AppendLine("<th>Tag</th>");
             sb.AppendLine("<th class=\"has-text-right\">Soll (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Ist (h)</th>");
+            sb.AppendLine("<th class=\"has-text-right\">Verr. (%)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Pause (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Überst. (h)</th>");
             sb.AppendLine("<th class=\"has-text-right\">Saldo (h)</th>");
@@ -49,11 +50,12 @@ namespace Adliance.Togglr
             {
                 sb.AppendLine($"<td class=\"has-text-right\">{day.Expected:N2}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{day.Total:N2}</td>");
+                sb.AppendLine($"<td class=\"has-text-right\">{(100d / day.BillableBase * day.BillableActual).FormatBillable()}</td>");
                 sb.AppendLine($"<td class=\"has-text-right\">{day.Breaks:N2}</td>");
             }
             else
             {
-                sb.AppendLine("<td></td><td></td><td></td>");
+                sb.AppendLine("<td></td><td></td><td></td><td></td>");
             }
 
             sb.AppendLine($"<td class=\"has-text-right has-text-success\">{day.Overtime.FormatColor()}</td>");
@@ -70,7 +72,7 @@ namespace Adliance.Togglr
             {
                 sb.AppendLine("<td></td>");
             }
-            
+
             sb.Append("<td>");
             foreach (var s in day.Specials.Where(x => x.Value > 0))
             {

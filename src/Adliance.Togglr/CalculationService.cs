@@ -20,6 +20,7 @@ namespace Adliance.Togglr
                 var d = new Day(dayPair.Key.Date)
                 {
                     Total = Math.Round(dayPair.Value.Sum(x => (x.End - x.Start).TotalHours), 2),
+                    Billable = Math.Round(dayPair.Value.Where(x => x.IsBillable()).Sum(x => (x.End - x.Start).TotalHours), 2),
                     Specials =
                     {
                         [Special.Doctor] = Math.Round(dayPair.Value.Where(x => x.IsDoctor()).Sum(x => (x.End - x.Start).TotalHours), 2),
@@ -218,6 +219,12 @@ namespace Adliance.Togglr
 
             public DateTime Date { get; }
             public double Total { get; set; }
+
+
+            public double Billable { get; set; }
+
+            public double BillableActual => Billable - Specials.Where(x => !new[] {Special.Doctor}.Contains(x.Key)).Sum(x => x.Value);
+            public double BillableBase => Total - Specials.Where(x => !new[] {Special.Doctor}.Contains(x.Key)).Sum(x => x.Value);
             public double Breaks { get; set; }
             public bool Has30MinutesBreak { get; set; }
             public double Expected { get; set; }
