@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NLog;
 using TogglApi.Client.Reports;
 using TogglApi.Client.Reports.Models;
+using TogglApi.Client.Reports.Models.Request;
 using TogglApi.Client.Reports.Models.Response;
 
 namespace Adliance.Togglr
@@ -21,15 +23,16 @@ namespace Adliance.Togglr
 
             var client = new TogglReportClient(new HttpClient(), _logger);
 
-            var detailedReports = await client.GetDetailedReport(new DetailedReportConfig
+            var detailedReports = (await client.GetDetailedReport(new DetailedReportConfig
             (
                 userAgent: "Adliance.Togglr by Adliance GmbH",
                 workspaceId: configuration.WorkspaceId, //Adliance workspace
                 since: from,
-                until: to
-            ), apiToken: configuration.ApiToken);
+                until: to,
+                billableOptions: BillableOptions.Both
+            ), apiToken: configuration.ApiToken)).Data.OrderBy(x => x.Start);
 
-            return detailedReports.Data;
+            return detailedReports;
         }
 
         public async Task DownloadEntriesAndStoreLocally(Configuration configuration)
@@ -49,7 +52,7 @@ namespace Adliance.Togglr
 
         public List<DetailedReportDatum> LoadEntriesLocallyAndFix()
         {
-            var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText("entries.json"));
+            var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText("entries.json")) ?? new List<DetailedReportDatum>();
             var fixedEntries = new List<DetailedReportDatum>();
             foreach (var entry in entries)
             {

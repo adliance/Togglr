@@ -39,7 +39,7 @@ namespace Adliance.Togglr
 
             try
             {
-                Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_togglrReportGeneratorParameter.ConfigurationFilePath));
+                Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_togglrReportGeneratorParameter.ConfigurationFilePath)) ?? throw new Exception("Unable to deserialize configuration.");
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace Adliance.Togglr
             logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
             var togglClient = new TogglClient();
-            // await togglClient.DownloadEntriesAndStoreLocally(Configuration);
+            await togglClient.DownloadEntriesAndStoreLocally(Configuration);
             AllEntries = togglClient.LoadEntriesLocallyAndFix();
 
             foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))

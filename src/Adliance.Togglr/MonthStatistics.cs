@@ -72,7 +72,7 @@ namespace Adliance.Togglr
             sb.AppendLine("</tfoot>");
             sb.AppendLine("</table>");
 
-            sb.AppendLine($"<div class=\"is-size-7 has-text-grey-light\">* Urlaubsanspruch wird auf Basis des aktuellen Anstellungsausmaßes von {calculationService.GetExpectedHours(DateTime.Now):N2}h/Tag berechnet.</div>");
+            sb.AppendLine($"<div class=\"is-size-7 has-text-grey-light\">* Urlaubsanspruch wird auf Basis des aktuellen Anstellungsausmaßes von {calculationService.GetExpectedHours(DateTime.Now):N2}h/Tag berechnet. Verrechenbare Stunden werden exklusive Urlaub, Krankenstand und Feiertage berechnet.</div>");
 
             if (calculationService.Days.Any(x => x.Value.Warnings.Any()))
             {

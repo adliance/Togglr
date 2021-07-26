@@ -15,6 +15,7 @@ namespace Adliance.Togglr.Extensions
         
         public static bool IsBillable(this DetailedReportDatum entry)
         {
+            if (string.IsNullOrEmpty(entry.Project)) return false;
             return !NonBillableProjects.Any(x => (entry.Project ?? "").Contains(x, StringComparison.OrdinalIgnoreCase));
         }
 
