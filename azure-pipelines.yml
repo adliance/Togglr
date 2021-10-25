@@ -19,28 +19,17 @@ steps:
   clean: true
 
 - task: UseDotNet@2
-  displayName: "Install .NET Core 3.1.x"
-  inputs:
-    version: '3.1.x'
-    packageType: runtime
-
-- task: DotNetCoreCLI@2
-  displayName: 'Install Set Version'
-  inputs:
-    command: custom
-    custom: tool
-    arguments: 'install -g dotnet-setversion'
-    
-- script: |
-    cd src/Adliance.Togglr
-    setversion $(Build.BuildNumber)
-  displayName: 'Set Version'
-
-- task: UseDotNet@2
   displayName: "Install .NET Core 5.0.x"
   inputs:
     version: '5.0.x'
     packageType: sdk
+
+- script: |
+    dotnet tool install -g dotnet-setversion --ignore-failed-sources
+    dotnet tool update -g dotnet-setversion --ignore-failed-sources
+    cd src/Adliance.Togglr
+    setversion $(Build.BuildNumber)
+  displayName: 'Set Version'
 
 - task: DotNetCoreCLI@2
   displayName: Restore
