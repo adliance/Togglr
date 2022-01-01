@@ -11,90 +11,89 @@ using TogglApi.Client.Reports.Models;
 using TogglApi.Client.Reports.Models.Request;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Adliance.Togglr
+namespace Adliance.Togglr;
+
+public class TogglClient
 {
-    public class TogglClient
+    private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
+    private async Task<IEnumerable<DetailedReportDatum>> DownloadEntries(Configuration configuration, DateTime from, DateTime to)
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        _logger.Info($"Downloading time entries from Toggl from {from:yyyy-MM-dd} to {to:yyyy-MM-dd} ...");
 
-        private async Task<IEnumerable<DetailedReportDatum>> DownloadEntries(Configuration configuration, DateTime from, DateTime to)
+        var client = new TogglReportClient(new HttpClient(), _logger);
+
+        var detailedReports = (await client.GetDetailedReport(new DetailedReportConfig
+        (
+            userAgent: "Adliance.Togglr by Adliance GmbH",
+            workspaceId: configuration.WorkspaceId, //Adliance workspace
+            since: from,
+            until: to,
+            billableOptions: BillableOptions.Both
+        ), apiToken: configuration.ApiToken)).Data.OrderBy(x => x.Start);
+
+        return detailedReports;
+    }
+
+    public async Task DownloadEntriesAndStoreLocally(Configuration configuration)
+    {
+        var entries = new List<DetailedReportDatum>();
+        for (var i = 2015; i <= DateTime.UtcNow.Year; i++)
         {
-            _logger.Info($"Downloading time entries from Toggl from {from:yyyy-MM-dd} to {to:yyyy-MM-dd} ...");
-
-            var client = new TogglReportClient(new HttpClient(), _logger);
-
-            var detailedReports = (await client.GetDetailedReport(new DetailedReportConfig
-            (
-                userAgent: "Adliance.Togglr by Adliance GmbH",
-                workspaceId: configuration.WorkspaceId, //Adliance workspace
-                since: from,
-                until: to,
-                billableOptions: BillableOptions.Both
-            ), apiToken: configuration.ApiToken)).Data.OrderBy(x => x.Start);
-
-            return detailedReports;
+            entries.AddRange(await DownloadEntries(
+                configuration,
+                new DateTime(i, 1, 1),
+                new DateTime(i, 12, 31).AddDays(1).AddSeconds(-1)));
         }
 
-        public async Task DownloadEntriesAndStoreLocally(Configuration configuration)
+        _logger.Info($"Downloaded a total of {entries.Count:N0} time entries.");
+        await File.WriteAllTextAsync("entries.json", JsonConvert.SerializeObject(entries));
+    }
+
+    public List<DetailedReportDatum> LoadEntriesLocallyAndFix()
+    {
+        var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText("entries.json")) ?? new List<DetailedReportDatum>();
+        var fixedEntries = new List<DetailedReportDatum>();
+        foreach (var entry in entries)
         {
-            var entries = new List<DetailedReportDatum>();
-            for (var i = 2015; i <= DateTime.UtcNow.Year; i++)
+            var fixedEntry = entry;
+
+            var startDate = new DateTime(fixedEntry.Start.Year, fixedEntry.Start.Month, fixedEntry.Start.Day, fixedEntry.Start.Hour, fixedEntry.Start.Minute, 0);
+            var endDate = new DateTime(fixedEntry.End.Year, fixedEntry.End.Month, fixedEntry.End.Day, fixedEntry.End.Hour, fixedEntry.End.Minute, 0);
+
+            // dirty hack to work around time zones and time entries that start at 00:00 (usually holiday/vacation)
+            while (startDate.Date != endDate.Date)
             {
-                entries.AddRange(await DownloadEntries(
-                    configuration,
-                    new DateTime(i, 1, 1),
-                    new DateTime(i, 12, 31).AddDays(1).AddSeconds(-1)));
+                startDate = startDate.AddHours(1);
+                endDate = endDate.AddHours(1);
             }
 
-            _logger.Info($"Downloaded a total of {entries.Count:N0} time entries.");
-            await File.WriteAllTextAsync("entries.json", JsonConvert.SerializeObject(entries));
+            fixedEntry = new DetailedReportDatum(
+                fixedEntry.Id,
+                fixedEntry.ProjectId,
+                fixedEntry.TaskId,
+                fixedEntry.UserId,
+                fixedEntry.Description,
+                startDate,
+                endDate,
+                fixedEntry.Updated,
+                fixedEntry.DurationMs,
+                fixedEntry.User,
+                fixedEntry.UseStop,
+                fixedEntry.Client,
+                fixedEntry.Project,
+                fixedEntry.ProjectColor,
+                fixedEntry.ProjectHexColor,
+                fixedEntry.Task,
+                entry.BillableTimeMs,
+                fixedEntry.IsBillable,
+                fixedEntry.Currency,
+                fixedEntry.Tags
+            );
+
+            fixedEntries.Add(fixedEntry);
         }
 
-        public List<DetailedReportDatum> LoadEntriesLocallyAndFix()
-        {
-            var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText("entries.json")) ?? new List<DetailedReportDatum>();
-            var fixedEntries = new List<DetailedReportDatum>();
-            foreach (var entry in entries)
-            {
-                var fixedEntry = entry;
-
-                var startDate = new DateTime(fixedEntry.Start.Year, fixedEntry.Start.Month, fixedEntry.Start.Day, fixedEntry.Start.Hour, fixedEntry.Start.Minute, 0);
-                var endDate = new DateTime(fixedEntry.End.Year, fixedEntry.End.Month, fixedEntry.End.Day, fixedEntry.End.Hour, fixedEntry.End.Minute, 0);
-
-                // dirty hack to work around time zones and time entries that start at 00:00 (usually holiday/vacation)
-                while (startDate.Date != endDate.Date)
-                {
-                    startDate = startDate.AddHours(1);
-                    endDate = endDate.AddHours(1);
-                }
-
-                fixedEntry = new DetailedReportDatum(
-                    fixedEntry.Id,
-                    fixedEntry.ProjectId,
-                    fixedEntry.TaskId,
-                    fixedEntry.UserId,
-                    fixedEntry.Description,
-                    startDate,
-                    endDate,
-                    fixedEntry.Updated,
-                    fixedEntry.DurationMs,
-                    fixedEntry.User,
-                    fixedEntry.UseStop,
-                    fixedEntry.Client,
-                    fixedEntry.Project,
-                    fixedEntry.ProjectColor,
-                    fixedEntry.ProjectHexColor,
-                    fixedEntry.Task,
-                    entry.BillableTimeMs,
-                    fixedEntry.IsBillable,
-                    fixedEntry.Currency,
-                    fixedEntry.Tags
-                );
-
-                fixedEntries.Add(fixedEntry);
-            }
-
-            return fixedEntries;
-        }
+        return fixedEntries;
     }
 }
