@@ -46,7 +46,7 @@ public class ProjectTimeReportService
 
         foreach (var e in entries)
         {
-            markdown.AppendLine($"| {e.Date:dd.MM.yyyy} | {e.User} | {e.Description} | {e.Hours:N2} |");
+            markdown.AppendLine($"| {e.Date:dd.MM.yyyy} | {e.User.Replace(" ", "&nbsp;")} | {e.Description} | {e.Hours:N2} |");
         }
 
         var totalHours = entries.Sum(x => x.Hours);
@@ -130,8 +130,8 @@ public class ProjectTimeReportService
                     Date = e.Start.UtcToCet().Date,
                     Description = e.Description.Trim(),
                     Hours = 0,
-                    User = e.User,
-                    Project = e.Project
+                    User = e.User.Trim(),
+                    Project = e.Project.Trim()
                 };
                 result.Add(entry);
             }
