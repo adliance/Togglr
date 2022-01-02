@@ -23,19 +23,11 @@ public class ProjectTimeReportService
         Program.Logger.Info("Building project time report ...");
         CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("de-DE");
         var entries = await LoadEntries(configuration);
-
-        double? totalHoursInProject = null;
-        if (configuration.PoolSize > 0)
-        {
-            var allEntries = await LoadEntries(configuration.Workspace, configuration.ApiKey, configuration.From.AddYears(-5), configuration.To, configuration.Project);
-            totalHoursInProject = allEntries.Sum(x => x.Hours);
-        }
-
-        await RenderToMarkdown(entries, configuration, totalHoursInProject);
+        await RenderToMarkdown(entries, configuration);
         Program.Logger.Info("Everything done. Goodbye.");
     }
 
-    private async Task RenderToMarkdown(IList<Entry> entries, ProjectTimeReportParameter configuration, double? totalHoursInProject)
+    private async Task RenderToMarkdown(IList<Entry> entries, ProjectTimeReportParameter configuration)
     {
         var file = new FileInfo(configuration.TargetPath);
         var directory = new DirectoryInfo(Path.GetDirectoryName(file.FullName)!);
@@ -47,7 +39,7 @@ public class ProjectTimeReportService
         }
 
         var markdown = new StringBuilder();
-        markdown.AppendLine($"Arbeitszeiten für Project **{entries.First().Project}** von **{configuration.From:dd. MMMM yyyy}** bis **{configuration.To:dd. MMMM yyyy}**:");
+        markdown.AppendLine($"Arbeitszeiten für Projekt **{entries.First().Project}** von **{configuration.From:dd. MMMM yyyy}** bis **{configuration.To:dd. MMMM yyyy}**:");
         markdown.AppendLine();
         markdown.AppendLine("| Tag | Person | Task | Stunden |");
         markdown.AppendLine("|-|-|-|-:|");
@@ -60,11 +52,23 @@ public class ProjectTimeReportService
         var totalHours = entries.Sum(x => x.Hours);
         markdown.AppendLine($"| | | **Summe** | **{totalHours:N2}** |");
 
-        if (totalHoursInProject.HasValue)
+        if (configuration.MaxPoolSize.HasValue)
         {
-            markdown.AppendLine($"| | | <br />**Umfang des Stundenpools** | <br />**{configuration.PoolSize:N2}** |");
-            markdown.AppendLine($"| | | **Verbleibend im Stundenpool** | **{configuration.PoolSize - totalHoursInProject.Value:N2}** |");
+            double? totalHoursInProject;
+            if (configuration.CurrentPoolSize.HasValue)
+            {
+                totalHoursInProject = configuration.CurrentPoolSize.Value + totalHours;
+            }
+            else
+            {
+                var allEntries = await LoadEntries(configuration.Workspace, configuration.ApiKey, configuration.From.AddYears(-5), configuration.To, configuration.Project);
+                totalHoursInProject = allEntries.Sum(x => x.Hours);
+            }
+
+            markdown.AppendLine($"| | | <br />Gesamtumfang des Stundenpools | <br />{configuration.MaxPoolSize:N2} |");
+            markdown.AppendLine($"| | | **Verbleibend im Stundenpool** | **{configuration.MaxPoolSize - totalHoursInProject.Value:N2}** |");
         }
+
 
         await File.WriteAllTextAsync(file.FullName, markdown.ToString());
     }

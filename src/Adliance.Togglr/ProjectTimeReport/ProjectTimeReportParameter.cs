@@ -13,7 +13,8 @@ public class ProjectTimeReportParameter
     [Option('t', "to", Required = false, HelpText = "The upper boundary of the time range. Defaults to last day of last month.")] public DateTime? ToDate { get; set; }
     [Option('o', "output", Required = false, Default = "./project-time-report.md", HelpText = "The output path.")] public string TargetPath { get; set; } = "";
 
-    [Option('s', "poolsize", Required = false, HelpText = "(Optional) The maximum hours pool size for the specified project.")] public int PoolSize { get; set; }
+    [Option('m', "max-poolsize", Required = false, HelpText = "(Optional) The maximum hours pool size for the specified project.")] public double? MaxPoolSize { get; set; }
+    [Option('c', "current-poolsize", Required = false, HelpText = "(Optional) The currently remaining hours pool size for the specified project. Leave empty to calculate automatically.")] public double? CurrentPoolSize { get; set; }
 
 
     public DateTime From
