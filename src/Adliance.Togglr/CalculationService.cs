@@ -32,15 +32,19 @@ public class CalculationService
                     [Special.LegacyVacationHolidaySick] = Math.Round(dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours), 2)
                 },
                 Expected = GetExpectedHours(dayPair.Key),
+                HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase))
             };
 
-            if (d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
+            if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
             {
+                d.IsHomeOffice = true;
+            }
+            else if (d.Date < new DateTime(2022, 07, 1) && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
+            {
+                // before July 2022 we used fixed days for HomeOffice
+                // after that we only use the entry description for specifying home office days 
                 d.IsHomeOffice = user.HomeOfficeWeekdays.Contains(d.DayOfWeek);
-                if (user.HomeOfficeDeviation.Any(x => x.Date == d.Date))
-                {
-                    d.IsHomeOffice = !d.IsHomeOffice;
-                }
+                if (user.HomeOfficeDeviation.Any(x => x.Date == d.Date)) d.IsHomeOffice = !d.IsHomeOffice;
             }
             else
             {
@@ -223,14 +227,15 @@ public class CalculationService
 
         public double Billable { get; set; }
 
-        public double BillableActual => Billable - Specials.Where(x => !new[] {Special.Doctor}.Contains(x.Key)).Sum(x => x.Value);
-        public double BillableBase => Total - Specials.Where(x => !new[] {Special.Doctor}.Contains(x.Key)).Sum(x => x.Value);
+        public double BillableActual => Billable - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
+        public double BillableBase => Total - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
         public double Breaks { get; set; }
         public bool Has30MinutesBreak { get; set; }
         public double Expected { get; set; }
         public double Overtime => Total - Expected;
         public double RollingOvertime { get; set; }
         public bool IsHomeOffice { get; set; }
+        public bool HasEntryForHomeOffice { get; set; }
         public double RollingVacationInDays { get; set; }
         public DayOfWeek DayOfWeek => Date.DayOfWeek;
         public IDictionary<Special, double> Specials { get; } = new Dictionary<Special, double>();

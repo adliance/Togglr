@@ -141,6 +141,8 @@ public class ProjectTimeReportService
 
         foreach (var e in result)
         {
+            e.Description = e.Description.Replace("homeoffice", "", StringComparison.OrdinalIgnoreCase);
+            e.Description = e.Description.Replace("home office", "", StringComparison.OrdinalIgnoreCase);
             e.Hours = RoundToQuarterHours(e.Hours);
         }
 
@@ -163,7 +165,7 @@ public class ProjectTimeReportService
     {
         public DateTime Date { get; init; }
         public string User { get; init; } = "";
-        public string Description { get; init; } = "";
+        public string Description { get; set; } = "";
         public double Hours { get; set; }
         public string Project { get; set; } = "";
     }
