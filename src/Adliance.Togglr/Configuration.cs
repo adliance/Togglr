@@ -31,6 +31,12 @@ public class UserConfiguration
     [JsonProperty("create_report")] public bool CreateReport { get; set; } = true;
     [JsonProperty("different_work_times")] public IList<ExpectedWorkTimeConfiguration> DifferentWorkTimes { get; set; } = new List<ExpectedWorkTimeConfiguration>();
 
+    [JsonProperty("weekdays")]
+    public IEnumerable<string> Weekdays { get; set; } = new[]
+    {
+        "Mon", "Tue", "Wed", "Thu", "Fri"
+    };
+
     [JsonProperty("begin")] public DateTime Begin { get; set; }
     [JsonProperty("end")] public DateTime End { get; set; }
 
@@ -49,6 +55,11 @@ public class ExpectedWorkTimeConfiguration
 {
     [JsonProperty("begin")] public DateTime Begin { get; set; }
     [JsonProperty("end")] public DateTime End { get; set; }
+    [JsonProperty("weekdays")]
+    public IEnumerable<string> Weekdays { get; set; } = new[]
+    {
+        "Mon", "Tue", "Wed", "Thu", "Fri"
+    };
     [JsonProperty("hours_per_day")] public double HoursPerDay { get; set; }
     [JsonProperty("reset_overtime")] public double? ResetOvertime { get; set; }
     [JsonProperty("reset_holidays")] public double? ResetHolidays { get; set; }

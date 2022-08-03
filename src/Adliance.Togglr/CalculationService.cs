@@ -31,7 +31,7 @@ public class CalculationService
                     [Special.SpecialVacation] = Math.Round(dayPair.Value.Where(x => x.IsSpecialVacation()).Sum(x => (x.End - x.Start).TotalHours), 2),
                     [Special.LegacyVacationHolidaySick] = Math.Round(dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours), 2)
                 },
-                Expected = GetExpectedHours(dayPair.Key),
+                Expected = GetExpectedHours(dayPair.Key, false),
                 HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase))
             };
 
@@ -85,7 +85,7 @@ public class CalculationService
                 var previousDay = loopDate.AddDays(-1);
                 Days[loopDate] = new Day(loopDate, Days.ContainsKey(previousDay) ? Days[previousDay].RollingOvertime : 0)
                 {
-                    Expected = GetExpectedHours(loopDate)
+                    Expected = GetExpectedHours(loopDate, false)
                 };
             }
 
@@ -113,7 +113,7 @@ public class CalculationService
     private void CalculateRollingVacation()
     {
         // the expected hours based on the current date/time
-        var currentExpectedHours = GetExpectedHours(DateTime.UtcNow, false);
+        var currentExpectedHours = GetExpectedHours(DateTime.UtcNow, true);
         var rollingVacation = User.ResetHolidays;
         foreach (var d in Days.OrderBy(x => x.Key).Select(x => x.Value))
         {
@@ -124,10 +124,13 @@ public class CalculationService
                 rollingVacation = differentWorkTime.ResetHolidays!.Value;
             }
 
-            var expected = GetExpectedHours(d.Date, false);
-            rollingVacation += expected * 25.0 / (DateTime.IsLeapYear(d.Date.Year) ? 366.0 : 365.0);
+            var expected = GetExpectedHours(d.Date, true);
+            var vecation = expected * 25.0 / (DateTime.IsLeapYear(d.Date.Year) ? 366.0 : 365.0);
+            rollingVacation += vecation;
             rollingVacation -= d.Specials[Special.Vacation];
+            d.VacationInHours = vecation;
             d.RollingVacationInDays = rollingVacation / currentExpectedHours;
+            d.RollingVacationInHours = rollingVacation;
         }
     }
 
@@ -170,9 +173,9 @@ public class CalculationService
                 d.Warnings.Add($"Sonderurlaub ist für {d.Specials[Special.SpecialVacation]:N2}h eingetragen, es müssten aber {d.Expected:N2}h sein.");
             }
 
-            if (d.Date.IsWeekend() && (d.Specials[Special.Holiday] > 0 || d.Specials[Special.Sick] > 0 || d.Specials[Special.Vacation] > 0 || d.Specials[Special.SpecialVacation] > 0))
+            if (d.Expected <= 0 && (d.Specials[Special.Holiday] > 0 || d.Specials[Special.Sick] > 0 || d.Specials[Special.Vacation] > 0 || d.Specials[Special.SpecialVacation] > 0))
             {
-                d.Warnings.Add("Wochenende, kein Urlaub/Sonderurlaub/Krankenstand/Feiertag möglich.");
+                d.Warnings.Add("Kein Arbeitstag, kein Urlaub/Sonderurlaub/Krankenstand/Feiertag möglich.");
             }
 
             var holidaysOfOthers = TogglrReportGeneratorService.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
@@ -188,20 +191,22 @@ public class CalculationService
         }
     }
 
-    public double GetExpectedHours(DateTime day, bool countWeekendAsZero = true)
+    public double GetExpectedHours(DateTime day, bool ignoreWeekday)
     {
-        if (countWeekendAsZero && day.IsWeekend())
-        {
-            return 0;
-        }
-
         var result = User.HoursPerDay;
+        var weekdays = User.Weekdays;
 
         var differentWorkTime = User.DifferentWorkTimes.FirstOrDefault(x => day.Date >= x.Begin.Date && day.Date <= x.End.Date.AddDays(1).AddSeconds(-1));
         if (differentWorkTime != null)
         {
             result = differentWorkTime.HoursPerDay;
+            weekdays = differentWorkTime.Weekdays;
         }
+
+        if (ignoreWeekday) return result;
+
+        // if the user does not work on this day of week, return 0;
+        if (!weekdays.Any(x => x.Equals(day.DayOfWeek.ToString().Substring(0, 3), StringComparison.OrdinalIgnoreCase))) return 0;
 
         return result;
     }
@@ -237,6 +242,8 @@ public class CalculationService
         public bool IsHomeOffice { get; set; }
         public bool HasEntryForHomeOffice { get; set; }
         public double RollingVacationInDays { get; set; }
+        public double RollingVacationInHours { get; set; }
+        public double VacationInHours { get; set; }
         public DayOfWeek DayOfWeek => Date.DayOfWeek;
         public IDictionary<Special, double> Specials { get; } = new Dictionary<Special, double>();
         public IList<string> Warnings { get; } = new List<string>();

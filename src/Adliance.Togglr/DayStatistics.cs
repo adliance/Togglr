@@ -43,10 +43,10 @@ public static class DayStatistics
 
     private static void WriteDay(Configuration configuration, StringBuilder sb, CalculationService.Day day)
     {
-        sb.AppendLine($"<tr class=\"{(day.Date.IsWeekend() ? "has-text-grey-light" : "")}\">");
+        sb.AppendLine($"<tr class=\"{(day.Expected <= 0 ? "has-text-grey-light" : "")}\">");
         sb.AppendLine($"<td>{day.Date:dddd, dd.MM.yyyy}</td>");
 
-        if (!day.Date.IsWeekend())
+        if (day.Expected > 0)
         {
             sb.AppendLine($"<td class=\"has-text-right\">{day.Expected:N2}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{day.Total:N2}</td>");
@@ -60,7 +60,7 @@ public static class DayStatistics
 
         sb.AppendLine($"<td class=\"has-text-right has-text-success\">{day.Overtime.FormatColor()}</td>");
 
-        sb.AppendLine(!day.Date.IsWeekend()
+        sb.AppendLine(day.Expected > 0
             ? $"<td class=\"has-text-right has-text-success\">{day.RollingOvertime.FormatColor()}</td>"
             : "<td></td>");
 
@@ -73,7 +73,7 @@ public static class DayStatistics
             sb.AppendLine("<td></td>");
         }
 
-        sb.Append("<td>");
+        sb.Append($"<td title=\"{day.VacationInHours:N2}h\">");
         foreach (var s in day.Specials.Where(x => x.Value > 0))
         {
             sb.Append($"<span class=\"tag is-success\">{s.Key.GetName(configuration)}</span> ");

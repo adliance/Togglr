@@ -52,7 +52,7 @@ public class TogglrReportGeneratorService
         Program.Logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
         var togglClient = new TogglClient();
-        await togglClient.DownloadEntriesAndStoreLocally(Configuration);
+        // await togglClient.DownloadEntriesAndStoreLocally(Configuration);
         AllEntries = togglClient.LoadEntriesLocallyAndFix();
 
         foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))

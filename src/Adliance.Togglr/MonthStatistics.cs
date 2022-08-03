@@ -45,7 +45,7 @@ public static class MonthStatistics
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Last().RollingVacationInDays.FormatColor()}</td>");
+            sb.AppendLine($"<td class=\"has-text-right\" title=\"{entries.Last().VacationInHours:N2}h this day, {entries.Last().RollingVacationInHours}h\">{entries.Last().RollingVacationInDays.FormatColor()}</td>");
             sb.AppendLine("</tr>");
 
             loopDate = loopDate.AddMonths(1);
@@ -72,7 +72,8 @@ public static class MonthStatistics
         sb.AppendLine("</tfoot>");
         sb.AppendLine("</table>");
 
-        sb.AppendLine($"<div class=\"is-size-7 has-text-grey-light\">* Urlaubsanspruch wird auf Basis des aktuellen Anstellungsausmaßes von {calculationService.GetExpectedHours(DateTime.Now):N2}h/Tag berechnet. Verrechenbare Stunden werden exklusive Urlaub, Krankenstand und Feiertage berechnet.</div>");
+        sb.AppendLine(
+            $"<div class=\"is-size-7 has-text-grey-light\">* Urlaubsanspruch wird auf Basis des aktuellen Anstellungsausmaßes von {calculationService.GetExpectedHours(DateTime.Now, true):N2}h/Tag berechnet. Verrechenbare Stunden werden exklusive Urlaub, Krankenstand und Feiertage berechnet.</div>");
 
         if (calculationService.Days.Any(x => x.Value.Warnings.Any()))
         {
