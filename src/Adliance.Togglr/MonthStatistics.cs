@@ -45,7 +45,7 @@ public static class MonthStatistics
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\" title=\"{entries.Last().VacationInHours:N2}h this day, {entries.Last().RollingVacationInHours}h\">{entries.Last().RollingVacationInDays.FormatColor()}</td>");
+            sb.AppendLine($"<td class=\"has-text-right\" title=\"{entries.Last().RollingVacationInHours:N2} hours vacation\">{entries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</td>");
             sb.AppendLine("</tr>");
 
             loopDate = loopDate.AddMonths(1);

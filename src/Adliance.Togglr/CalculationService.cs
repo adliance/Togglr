@@ -125,10 +125,12 @@ public class CalculationService
             }
 
             var expected = GetExpectedHours(d.Date, true);
-            var vecation = expected * 25.0 / (DateTime.IsLeapYear(d.Date.Year) ? 366.0 : 365.0);
-            rollingVacation += vecation;
+
+            // we need to make sure that the vacancy hours each day are calculated based on the number of workdays (so that the hours per day stay the same, regardless if it's 5 or 4 hour work week)
+            var vacation = expected * (25.0 / 5.0 * GetExpectedNumberOfWorkdays(d.Date)) / (DateTime.IsLeapYear(d.Date.Year) ? 366.0 : 365.0);
+            rollingVacation += vacation;
             rollingVacation -= d.Specials[Special.Vacation];
-            d.VacationInHours = vecation;
+            d.VacationInHours = vacation;
             d.RollingVacationInDays = rollingVacation / currentExpectedHours;
             d.RollingVacationInHours = rollingVacation;
         }
@@ -209,6 +211,19 @@ public class CalculationService
         if (!weekdays.Any(x => x.Equals(day.DayOfWeek.ToString().Substring(0, 3), StringComparison.OrdinalIgnoreCase))) return 0;
 
         return result;
+    }
+
+    public int GetExpectedNumberOfWorkdays(DateTime day)
+    {
+        var weekdays = User.Weekdays;
+
+        var differentWorkTime = User.DifferentWorkTimes.FirstOrDefault(x => day.Date >= x.Begin.Date && day.Date <= x.End.Date.AddDays(1).AddSeconds(-1));
+        if (differentWorkTime != null)
+        {
+            weekdays = differentWorkTime.Weekdays;
+        }
+
+        return weekdays.Count();
     }
 
     public class Day

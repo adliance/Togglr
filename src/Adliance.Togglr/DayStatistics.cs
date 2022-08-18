@@ -73,7 +73,7 @@ public static class DayStatistics
             sb.AppendLine("<td></td>");
         }
 
-        sb.Append($"<td title=\"{day.VacationInHours:N2}h\">");
+        sb.Append($"<td title=\"{day.VacationInHours:N2} hours vacation added\">");
         foreach (var s in day.Specials.Where(x => x.Value > 0))
         {
             sb.Append($"<span class=\"tag is-success\">{s.Key.GetName(configuration)}</span> ");
