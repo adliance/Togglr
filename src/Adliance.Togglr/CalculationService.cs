@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TogglApi.Client.Reports.Models.Response;
 using Adliance.Togglr.Extensions;
 
@@ -32,7 +33,9 @@ public class CalculationService
                     [Special.LegacyVacationHolidaySick] = Math.Round(dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours), 2)
                 },
                 Expected = GetExpectedHours(dayPair.Key, false),
-                HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase))
+                HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase)),
+                Start = dayPair.Value.Select(x => x.Start).Min(),
+                End = dayPair.Value.Select(x => x.End).Max()
             };
 
             if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
@@ -59,7 +62,12 @@ public class CalculationService
                 {
                     var difference = e.Start - previousEntry.End;
                     d.Breaks += difference.TotalHours;
-                    d.Has30MinutesBreak = d.Has30MinutesBreak || Math.Round(difference.TotalMinutes, 9) >= 30;
+
+                    if (Math.Round(difference.TotalMinutes, 9) >= 30)
+                    {
+                        d.BreakStart = previousEntry.End;
+                        d.BreakEnd = e.Start;
+                    }
                 }
 
                 previousEntry = e;
@@ -244,14 +252,18 @@ public class CalculationService
         public DateTime Date { get; }
         public double Total { get; set; }
 
-
         public double Billable { get; set; }
 
         public double BillableActual => Billable - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
         public double BillableBase => Total - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
-        public double Breaks { get; set; }
-        public bool Has30MinutesBreak { get; set; }
         public double Expected { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public DateTime? BreakStart { get; set; }
+        public DateTime? BreakEnd { get; set; }
+        public double Breaks { get; set; }
+        public bool Has30MinutesBreak => BreakStart.HasValue && BreakEnd.HasValue && Math.Round((BreakEnd.Value - BreakStart.Value).TotalMinutes, 9) >= 30;
+
         public double Overtime => Total - Expected;
         public double RollingOvertime { get; set; }
         public bool IsHomeOffice { get; set; }
@@ -262,6 +274,19 @@ public class CalculationService
         public DayOfWeek DayOfWeek => Date.DayOfWeek;
         public IDictionary<Special, double> Specials { get; } = new Dictionary<Special, double>();
         public IList<string> Warnings { get; } = new List<string>();
+
+        public bool PrintTimes
+        {
+            get
+            {
+                foreach (var s in Specials)
+                {
+                    if (s.Value > 0 && new[] { Special.Holiday, Special.Sick, Special.Vacation, Special.PersonalHoliday, Special.SpecialVacation, Special.LegacyVacationHolidaySick }.Contains(s.Key)) return false;
+                }
+
+                return true;
+            }
+        }
     }
 
     public enum Special
