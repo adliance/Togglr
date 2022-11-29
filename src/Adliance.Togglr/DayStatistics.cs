@@ -64,7 +64,7 @@ public static class DayStatistics
             }
             else
             {
-                sb.AppendLine("<td></td><td></td><");
+                sb.AppendLine("<td></td><td></td>");
             }
 
             sb.AppendLine($"<td class=\"has-text-right\">{day.Expected:N2}</td>");
