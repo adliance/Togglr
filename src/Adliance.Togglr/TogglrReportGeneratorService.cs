@@ -52,7 +52,7 @@ public class TogglrReportGeneratorService
         Program.Logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
         var togglClient = new TogglClient();
-        // await togglClient.DownloadEntriesAndStoreLocally(Configuration);
+        await togglClient.DownloadEntriesAndStoreLocally(Configuration);
         AllEntries = togglClient.LoadEntriesLocallyAndFix();
 
         foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
@@ -69,7 +69,7 @@ public class TogglrReportGeneratorService
                 Program.Logger.Warn($"No report should be created for {userPair.Key}. Ignoring this user ...");
                 continue;
             }
-                
+
             Program.Logger.Info($"Working on {userPair.Key}...");
 
             var sb = new StringBuilder();
@@ -96,6 +96,4 @@ public class TogglrReportGeneratorService
         Program.Logger.Info("Everything done. Goodbye.");
         return ExitCode.Ok;
     }
-
-
 }
