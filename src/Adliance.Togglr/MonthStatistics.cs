@@ -27,6 +27,8 @@ public static class MonthStatistics
         sb.AppendLine("</tr></thead>");
         sb.AppendLine("<tbody>");
 
+        if (!calculationService.Days.Any()) return;
+        
         var minDate = calculationService.Days.OrderBy(x => x.Key).Select(x => x.Value).First();
         var maxDate = calculationService.Days.OrderBy(x => x.Key).Select(x => x.Value).Last();
         var loopDate = new DateTime(minDate.Date.Year, minDate.Date.Month, 1);

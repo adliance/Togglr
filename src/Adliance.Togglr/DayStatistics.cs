@@ -9,6 +9,12 @@ public static class DayStatistics
 {
     public static void WriteEveryDayInMonth(Configuration configuration, StringBuilder sb, DateTime firstDayOfMonth, CalculationService calculationService)
     {
+        var lastDayOfMonth = new DateTime(firstDayOfMonth.Year, firstDayOfMonth.Month, 1).AddMonths(1).AddDays(-1).Date;
+        var shouldPrintMonth = !configuration.PrintDetailsStart.HasValue || firstDayOfMonth >= configuration.PrintDetailsStart.Value.Date;
+        shouldPrintMonth = shouldPrintMonth && (!configuration.PrintDetailsEnd.HasValue || lastDayOfMonth <= configuration.PrintDetailsEnd.Value.Date);
+
+        if (!shouldPrintMonth) return;
+
         sb.AppendLine("<div class=\"container\">");
         sb.AppendLine($"<h2 class=\"title is-5\" style=\"margin: 2rem 0 0 0;\">{firstDayOfMonth:MMMM yyyy}</h2>");
         sb.AppendLine("<table class=\"table is-size-7\" style=\"margin:1rem 0 0 0;\">");
@@ -32,6 +38,10 @@ public static class DayStatistics
         {
             if (calculationService.Days.ContainsKey(loopDate.Date))
             {
+                var shouldPrintDay = !configuration.PrintDetailsStart.HasValue || loopDate.Date >= configuration.PrintDetailsStart.Value.Date;
+                shouldPrintDay = shouldPrintDay && (!configuration.PrintDetailsEnd.HasValue || loopDate.Date <= configuration.PrintDetailsEnd.Value.Date);
+                if (!shouldPrintDay) continue;
+
                 WriteDay(configuration, sb, calculationService.Days[loopDate.Date]);
             }
 
