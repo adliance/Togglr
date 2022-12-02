@@ -62,7 +62,15 @@ public static class DayStatistics
         {
             if (day.PrintTimes)
             {
-                sb.AppendLine($"<td>{day.Start.UtcToCet():HH:mm}-{day.End.UtcToCet():HH:mm}</td>");
+                if (day.Start.HasValue && day.End.HasValue)
+                {
+                    sb.AppendLine($"<td>{day.Start.Value.UtcToCet():HH:mm}-{day.End.Value.UtcToCet():HH:mm}</td>");
+                }
+                else
+                {
+                    sb.AppendLine("<td></td>");
+                }
+
                 if (day.BreakStart.HasValue && day.BreakEnd.HasValue)
                 {
                     sb.AppendLine($"<td>{day.BreakStart.Value.UtcToCet():HH:mm}-{day.BreakEnd.Value.UtcToCet():HH:mm}</td>");

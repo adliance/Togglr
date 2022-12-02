@@ -34,8 +34,8 @@ public class CalculationService
                 },
                 Expected = GetExpectedHours(dayPair.Key, false),
                 HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase)),
-                Start = dayPair.Value.Select(x => x.Start).Min(),
-                End = dayPair.Value.Select(x => x.End).Max()
+                Start = dayPair.Value.Any() ? dayPair.Value.Select(x => x.Start).Min() : null,
+                End = dayPair.Value.Any() ? dayPair.Value.Select(x => x.End).Max() : null
             };
 
             if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
@@ -257,8 +257,8 @@ public class CalculationService
         public double BillableActual => Billable - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
         public double BillableBase => Total - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
         public double Expected { get; set; }
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public DateTime? Start { get; set; }
+        public DateTime? End { get; set; }
         public DateTime? BreakStart { get; set; }
         public DateTime? BreakEnd { get; set; }
         public double Breaks { get; set; }
