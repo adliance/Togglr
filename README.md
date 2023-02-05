@@ -136,3 +136,35 @@ In addition, each team member can have different work times for different time s
     }
   ]
 ```
+
+## Run as Docker container
+
+First you need to build the docker image
+
+```
+docker build -t local/togglr:latest .
+```
+
+Output should look similar to
+```
+$ docker build -t local/togglr:latest .
+Sending build context to Docker daemon  713.7kB
+Step 1/9 : FROM mcr.microsoft.com/dotnet/sdk:7.0 AS builder
+ ---> b2061e2c2b3c
+Step 2/9 : WORKDIR /src
+... <more output> ...
+ ---> 1b138810eb50
+Successfully built 1b138810eb50
+Successfully tagged local/togglr:latest
+```
+
+After the successfull build you can generate the configuration  but you need to mount a directory into the container to have the configuration.json file available.
+```
+mkdir conf && docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest generate-configuration -t /conf/configuration.json
+```
+
+Change the configuration.json to your needs - see [Configuration](#configuration), afterwards you can run the container and the report is written to the conf path
+
+```
+docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest -c /conf/configuration.json -o /conf/
+```
