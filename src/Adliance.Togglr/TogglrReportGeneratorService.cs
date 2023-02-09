@@ -70,7 +70,7 @@ public class TogglrReportGeneratorService
                 continue;
             }
 
-            Program.Logger.Info($"Working on {userPair.Key}...");
+            Program.Logger.Info($"Working on {_togglrReportGeneratorParameter.OutputPath}{userPair.Key}...");
 
             var sb = new StringBuilder();
             HtmlHelper.WriteHtmlBegin(sb);
@@ -90,7 +90,7 @@ public class TogglrReportGeneratorService
             }
 
             HtmlHelper.WriteHtmlEnd(sb);
-            await File.WriteAllTextAsync($"{userPair.Key}.html", sb.ToString());
+            await File.WriteAllTextAsync($"{_togglrReportGeneratorParameter.OutputPath}{userPair.Key}.html", sb.ToString());
         }
 
         Program.Logger.Info("Everything done. Goodbye.");
