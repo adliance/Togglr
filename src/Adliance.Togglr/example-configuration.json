@@ -1,7 +1,7 @@
 ﻿{
   "api_token": "",
   "workspace_id": 0,
-  
+  "cache_entries_until_year": 2021,
   "project_vacation": "Urlaub",
   "project_special_vacation": "Sonderurlaub",
   "project_holiday": "Feiertag",
