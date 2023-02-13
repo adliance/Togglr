@@ -38,7 +38,26 @@ public class TogglClient
     public async Task DownloadEntriesAndStoreLocally(Configuration configuration)
     {
         var entries = new List<DetailedReportDatum>();
-        for (var i = 2015; i <= DateTime.UtcNow.Year; i++)
+
+        if (configuration.CacheEntriesUntilYear.HasValue)
+        {
+            // check if file with old entries already exists; otherwise download the old entries
+            if (!File.Exists("entries_until_" + configuration.CacheEntriesUntilYear + ".json"))
+            {
+                for (var i = 2015; i <= configuration.CacheEntriesUntilYear; i++)
+                {
+                    entries.AddRange(await DownloadEntries(
+                        configuration,
+                        new DateTime(i, 1, 1),
+                        new DateTime(i, 12, 31).AddDays(1).AddSeconds(-1)));
+                }
+                
+                await File.WriteAllTextAsync("entries_until_" + configuration.CacheEntriesUntilYear + ".json", JsonConvert.SerializeObject(entries));
+                entries = new List<DetailedReportDatum>();
+            }
+        }
+        
+        for (var i = configuration.CacheEntriesUntilYear + 1 ?? 2015; i <= DateTime.UtcNow.Year; i++)
         {
             entries.AddRange(await DownloadEntries(
                 configuration,
@@ -50,9 +69,19 @@ public class TogglClient
         await File.WriteAllTextAsync("entries.json", JsonConvert.SerializeObject(entries));
     }
 
-    public List<DetailedReportDatum> LoadEntriesLocallyAndFix()
+    public List<DetailedReportDatum> LoadEntriesLocallyAndFix(Configuration configuration)
     {
         var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText("entries.json")) ?? new List<DetailedReportDatum>();
+
+        if (configuration.CacheEntriesUntilYear.HasValue)
+        {
+            var oldEntries =
+                JsonConvert.DeserializeObject<List<DetailedReportDatum>>(
+                    File.ReadAllText("entries_until_" + configuration.CacheEntriesUntilYear + ".json")) ??
+                new List<DetailedReportDatum>();
+            entries = entries.Concat(oldEntries).ToList();
+        }
+        
         var fixedEntries = new List<DetailedReportDatum>();
         foreach (var entry in entries)
         {

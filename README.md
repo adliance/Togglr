@@ -102,6 +102,12 @@ While team members use Toggl to track their normal working time to work-related 
   "project_doctor": "Arztbesuch",
 ```
 
+### Optional: Cache specification
+Optionally a year can be specified, until which all entries remain in a cache file and won't be downloaded each time the tool gets started. The specified year is included in the cache:
+```
+  "cache_entries_until_year": 2021
+```
+
 ### Required: Team Members
 Each team member needs to be configured with his/her Toggl name and expected work time:
 ```

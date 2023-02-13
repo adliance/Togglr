@@ -53,7 +53,7 @@ public class TogglrReportGeneratorService
 
         var togglClient = new TogglClient();
         await togglClient.DownloadEntriesAndStoreLocally(Configuration);
-        AllEntries = togglClient.LoadEntriesLocallyAndFix();
+        AllEntries = togglClient.LoadEntriesLocallyAndFix(Configuration);
 
         foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
         {
