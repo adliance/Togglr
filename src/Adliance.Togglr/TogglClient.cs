@@ -89,12 +89,19 @@ public class TogglClient
 
             var startDate = new DateTime(fixedEntry.Start.Year, fixedEntry.Start.Month, fixedEntry.Start.Day, fixedEntry.Start.Hour, fixedEntry.Start.Minute, 0);
             var endDate = new DateTime(fixedEntry.End.Year, fixedEntry.End.Month, fixedEntry.End.Day, fixedEntry.End.Hour, fixedEntry.End.Minute, 0);
-
+            
             // dirty hack to work around time zones and time entries that start at 00:00 (usually holiday/vacation)
             while (startDate.Date != endDate.Date)
             {
-                startDate = startDate.AddHours(1);
-                endDate = endDate.AddHours(1);
+                try
+                {
+                    startDate = startDate.AddHours(1);
+                    endDate = endDate.AddHours(1);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to correct dates {startDate} or {endDate}: {ex.Message}");
+                }
             }
 
             fixedEntry = new DetailedReportDatum(

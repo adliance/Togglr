@@ -191,10 +191,11 @@ public class CalculationService
             var holidaysOfOthers = TogglrReportGeneratorService.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
             if (d.Specials[Special.Holiday] <= 0 && holidaysOfOthers.Any())
             {
-                if (d.Date.Month == 12 && (d.Date.Day == 24 || d.Date.Day == 31))
-                {
-                    continue;
-                }
+                // no warning when the user is not supposed to work on this day
+                if (d.Expected <= 0) continue;
+                
+                // no warning on 24th and 31th of decemger
+                if (d.Date is { Month: 12, Day: 24 or 31 }) continue;
 
                 d.Warnings.Add($"Kein Feiertag eingetragen, aber {string.Join(", ", holidaysOfOthers.Select(x => x.User))} {(holidaysOfOthers.Count == 1 ? "hat" : "haben")} Feiertag eingetragen.");
             }
