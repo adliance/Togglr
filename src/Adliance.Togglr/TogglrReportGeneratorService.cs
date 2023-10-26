@@ -77,7 +77,7 @@ public class TogglrReportGeneratorService
             HtmlHelper.WriteDocumentTitle(sb, userPair.Key);
 
             userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date : userConfiguration.End;
-            if (Configuration.End.HasValue && Configuration.End.Value < userConfiguration.End) userConfiguration.End = Configuration.End.Value; // if we have a user end, and a global end, use the glabal end
+            if (Configuration.End.HasValue && Configuration.End.Value < userConfiguration.End) userConfiguration.End = Configuration.End.Value; // if we have a user end, and a global end, use the global end
 
             var calculationService = new CalculationService(userConfiguration, userPair.Value, Configuration.HomeOfficeStart ?? DateTime.MaxValue);
             MonthStatistics.WriteEveryMonth(sb, calculationService);

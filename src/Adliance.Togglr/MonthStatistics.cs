@@ -19,6 +19,7 @@ public static class MonthStatistics
         sb.AppendLine("<th class=\"has-text-right\">Überst. (h)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Saldo (h)</th>");
         sb.AppendLine("<th class=\"has-text-right\">HomeOffice (T)</th>");
+        sb.AppendLine("<th class=\"has-text-right\">Dienstreise (h)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Feiertag (T)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Krankenstand (T)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Sonderurlaub (T)</th>");
@@ -43,6 +44,7 @@ public static class MonthStatistics
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Overtime).FormatColor()}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Last().RollingOvertime.FormatColor()}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.IsHomeOffice)}</td>");
+            sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.BusinessTripHours)}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</td>");
             sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</td>");
@@ -65,6 +67,7 @@ public static class MonthStatistics
         sb.AppendLine("<th></th>");
         sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Last().RollingOvertime.FormatColor()}</th>");
         sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.IsHomeOffice)}</th>");
+        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Sum(x => x.BusinessTripHours)}</th>");
         sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</th>");
         sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</th>");
         sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</th>");
