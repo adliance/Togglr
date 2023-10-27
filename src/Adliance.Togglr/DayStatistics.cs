@@ -27,6 +27,7 @@ public static class DayStatistics
         sb.AppendLine("<th class=\"has-text-right\">Verr. (%)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Pause (h)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Überst. (h)</th>");
+        sb.AppendLine("<th class=\"has-text-right\">Dienstreise (h)</th>");
         sb.AppendLine("<th class=\"has-text-right\">Saldo (h)</th>");
         sb.AppendLine("<th>HomeOffice</th>");
         sb.AppendLine("<th>Sonstiges</th>");
@@ -105,6 +106,8 @@ public static class DayStatistics
 
         sb.AppendLine($"<td class=\"has-text-right has-text-success\">{day.Overtime.FormatColor()}</td>");
 
+        sb.AppendLine($"<td class=\"has-text-right\">{day.BusinessTripHours}</td>");
+        
         sb.AppendLine(day.Expected > 0
             ? $"<td class=\"has-text-right has-text-success\">{day.RollingOvertime.FormatColor()}</td>"
             : "<td></td>");
