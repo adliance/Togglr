@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using TogglApi.Client.Reports.Models.Response;
 using Adliance.Togglr.Extensions;
 
@@ -40,7 +39,7 @@ public class CalculationService
                 BusinessTripHours = Math.Round(dayPair.Value.Where(x => x.Description.Contains("dienstreise", StringComparison.OrdinalIgnoreCase)).Sum(x => (x.End - x.Start).TotalHours), 2)
             };
 
-            if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
+            if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Where(x => x.Key != Special.Doctor).Any(x => x.Value > 0))
             {
                 d.IsHomeOffice = true;
             }
