@@ -64,7 +64,11 @@ public static class DayStatistics
         if (!printedWeeklySummary)
         {
             var lastDay = loopDate.Date.AddDays(-1);
-            if (calculationService.Weeks.ContainsKey((lastDay.Month, lastDay.GetWeekNumber())))
+            var shouldPrintDay = !configuration.PrintDetailsStart.HasValue || lastDay >= configuration.PrintDetailsStart.Value.Date;
+            shouldPrintDay = shouldPrintDay && (!configuration.PrintDetailsEnd.HasValue || lastDay <= configuration.PrintDetailsEnd.Value.Date);
+            shouldPrintDay = shouldPrintDay && calculationService.Days.ContainsKey(lastDay);
+            
+            if (shouldPrintDay && calculationService.Weeks.ContainsKey((lastDay.Month, lastDay.GetWeekNumber())))
                 WriteWeeklySummary(configuration, sb, calculationService.Weeks[(lastDay.Month, lastDay.GetWeekNumber())]);
         }
 
@@ -165,11 +169,11 @@ public static class DayStatistics
         sb.AppendLine($"<td>{week.Expected:N2}</td>");
         sb.AppendLine($"<td>{week.Total:N2}</td>");
         sb.AppendLine($"<td class=\"has-text-right\">{(100d / week.BillableBase * week.BillableActual).FormatBillable()}</td>");
-        sb.AppendLine($"<td>{week.BreakDuration}</td>");
+        sb.AppendLine($"<td class=\"has-text-right\">{week.BreakDuration:N2}</td>");
         
         sb.AppendLine($"<td class=\"has-text-right has-text-success\">{week.Overtime.FormatColor()}</td>");
 
-        sb.AppendLine($"<td class=\"has-text-right\">{week.BusinessTripHours}</td>");
+        sb.AppendLine($"<td class=\"has-text-right\">{week.BusinessTripHours:N2}</td>");
         
         sb.AppendLine($"<td class=\"has-text-right has-text-success\">{week.RollingOvertime.FormatColor()}</td>");
 
