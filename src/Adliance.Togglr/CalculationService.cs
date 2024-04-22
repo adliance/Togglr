@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using TogglApi.Client.Reports.Models.Response;
 using Adliance.Togglr.Extensions;
 
@@ -11,6 +10,7 @@ public class CalculationService
 {
     private UserConfiguration User { get; }
     public IDictionary<DateTime, Day> Days { get; }
+    public IDictionary<(int, int), Week> Weeks { get; }
 
     public CalculationService(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
     {
@@ -39,7 +39,7 @@ public class CalculationService
                 BusinessTripHours = Math.Round(dayPair.Value.Where(x => x.Description.Contains("dienstreise", StringComparison.OrdinalIgnoreCase)).Sum(x => (x.End - x.Start).TotalHours), 2)
             };
 
-            if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
+            if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Where(x => x.Key != Special.Doctor).Any(x => x.Value > 0))
             {
                 d.IsHomeOffice = true;
             }
@@ -78,9 +78,11 @@ public class CalculationService
         }
 
         Days = days.OrderBy(x => x.Date).ToDictionary(x => x.Date, x => x);
+        Weeks = new Dictionary<(int, int), Week>();
         AddMissingDays();
         CalculateRollingOvertime();
         CalculateRollingVacation();
+        CalculateWeeks();
         AddWarnings(user.IgnoreBreakWarnings);
     }
 
@@ -142,6 +144,35 @@ public class CalculationService
             d.VacationInHours = vacation;
             d.RollingVacationInDays = rollingVacation / currentExpectedHours;
             d.RollingVacationInHours = rollingVacation;
+        }
+    }
+    
+    private void CalculateWeeks()
+    {
+        Week? currentWeek = null;
+        foreach (var d in Days.OrderBy(x => x.Key).Select(x => x.Value))
+        {
+            if (d.Date.Day == 1 || d.Date.DayOfWeek == DayOfWeek.Monday || currentWeek == null)
+            {
+                currentWeek = new Week();
+            }
+
+            currentWeek.Expected += d.Expected;
+            currentWeek.Billable += d.Billable;
+            currentWeek.Total += d.Total;
+            if (d.IsHomeOffice)
+            {
+                currentWeek.HasEntryForHomeOffice = true;
+            }
+
+            currentWeek.RollingOvertime = d.RollingOvertime;
+            currentWeek.RollingVacationInDays = d.RollingVacationInDays;
+            currentWeek.RollingVacationInHours = d.RollingVacationInHours;
+            currentWeek.VacationInHours += d.VacationInHours;
+            currentWeek.BusinessTripHours += d.BusinessTripHours;
+            currentWeek.BreakDuration += d.Breaks;
+
+            Weeks[(d.Date.Month, d.Date.GetWeekNumber())] = currentWeek;
         }
     }
 
@@ -290,6 +321,39 @@ public class CalculationService
                 return true;
             }
         }
+    }
+    
+    public class Week
+    {
+        public Week(double rollingOvertime = 0)
+        {
+            RollingOvertime = rollingOvertime;
+            Specials[Special.Doctor] = 0;
+            Specials[Special.Holiday] = 0;
+            Specials[Special.PersonalHoliday] = 0;
+            Specials[Special.Sick] = 0;
+            Specials[Special.Vacation] = 0;
+            Specials[Special.SpecialVacation] = 0;
+            Specials[Special.LegacyVacationHolidaySick] = 0;
+        }
+
+        public double Total { get; set; }
+
+        public double Billable { get; set; }
+
+        public double BillableActual => Billable - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
+        public double BillableBase => Total - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
+        public double BusinessTripHours { get; set; }
+        public double BreakDuration { get; set; }
+        public double Expected { get; set; }
+        public double Overtime => Total - Expected;
+        public double RollingOvertime { get; set; }
+        
+        public bool HasEntryForHomeOffice { get; set; }
+        public double RollingVacationInDays { get; set; }
+        public double RollingVacationInHours { get; set; }
+        public double VacationInHours { get; set; }
+        public IDictionary<Special, double> Specials { get; } = new Dictionary<Special, double>();
     }
 
     public enum Special

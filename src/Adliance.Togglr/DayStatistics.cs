@@ -35,8 +35,14 @@ public static class DayStatistics
         sb.AppendLine("<tbody>");
 
         var loopDate = firstDayOfMonth;
+        var printedWeeklySummary = false;
         while (loopDate.Month == firstDayOfMonth.Month)
         {
+            if (loopDate.Date.DayOfWeek == DayOfWeek.Monday)
+            {
+                printedWeeklySummary = false;
+            }
+            
             if (calculationService.Days.ContainsKey(loopDate.Date))
             {
                 var shouldPrintDay = !configuration.PrintDetailsStart.HasValue || loopDate.Date >= configuration.PrintDetailsStart.Value.Date;
@@ -45,8 +51,25 @@ public static class DayStatistics
 
                 WriteDay(configuration, sb, calculationService.Days[loopDate.Date]);
             }
+            
+            if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && calculationService.Weeks.ContainsKey((loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
+            {
+                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
+                printedWeeklySummary = true;
+            }
 
             loopDate = loopDate.AddDays(1);
+        }
+
+        if (!printedWeeklySummary)
+        {
+            var lastDay = loopDate.Date.AddDays(-1);
+            var shouldPrintDay = !configuration.PrintDetailsStart.HasValue || lastDay >= configuration.PrintDetailsStart.Value.Date;
+            shouldPrintDay = shouldPrintDay && (!configuration.PrintDetailsEnd.HasValue || lastDay <= configuration.PrintDetailsEnd.Value.Date);
+            shouldPrintDay = shouldPrintDay && calculationService.Days.ContainsKey(lastDay);
+            
+            if (shouldPrintDay && calculationService.Weeks.ContainsKey((lastDay.Month, lastDay.GetWeekNumber())))
+                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(lastDay.Month, lastDay.GetWeekNumber())]);
         }
 
         sb.AppendLine("</tbody>");
@@ -101,7 +124,7 @@ public static class DayStatistics
         }
         else
         {
-            sb.AppendLine("<td></td><td></td><td></td><td></td>");
+            sb.AppendLine("<td></td><td></td><td></td><td></td><td></td><td></td>");
         }
 
         sb.AppendLine($"<td class=\"has-text-right has-text-success\">{day.Overtime.FormatColor()}</td>");
@@ -130,6 +153,43 @@ public static class DayStatistics
         foreach (var w in day.Warnings)
         {
             sb.Append($"<span class=\"tag is-danger\">{w}</span> ");
+        }
+
+        sb.AppendLine("</td>");
+
+        sb.AppendLine("</tr>");
+    }
+    
+    private static void WriteWeeklySummary(Configuration configuration, StringBuilder sb, CalculationService.Week week)
+    {
+        sb.AppendLine($"<tr class=\"has-text-weight-semibold\">");
+        sb.AppendLine($"<td>Summary:</td>");
+        sb.AppendLine($"<td></td>");
+        sb.AppendLine($"<td></td>");
+        sb.AppendLine($"<td>{week.Expected:N2}</td>");
+        sb.AppendLine($"<td>{week.Total:N2}</td>");
+        sb.AppendLine($"<td class=\"has-text-right\">{(100d / week.BillableBase * week.BillableActual).FormatBillable()}</td>");
+        sb.AppendLine($"<td class=\"has-text-right\">{week.BreakDuration:N2}</td>");
+        
+        sb.AppendLine($"<td class=\"has-text-right has-text-success\">{week.Overtime.FormatColor()}</td>");
+
+        sb.AppendLine($"<td class=\"has-text-right\">{week.BusinessTripHours:N2}</td>");
+        
+        sb.AppendLine($"<td class=\"has-text-right has-text-success\">{week.RollingOvertime.FormatColor()}</td>");
+
+        if (week.HasEntryForHomeOffice)
+        {
+            sb.AppendLine("<td class=\"has-text-centered\">✔</td>");
+        }
+        else
+        {
+            sb.AppendLine("<td></td>");
+        }
+
+        sb.Append($"<td title=\"{week.VacationInHours:N2} hours vacation added\">");
+        foreach (var s in week.Specials.Where(x => x.Value > 0))
+        {
+            sb.Append($"<span class=\"tag is-success\">{s.Key.GetName(configuration)}</span> ");
         }
 
         sb.AppendLine("</td>");
