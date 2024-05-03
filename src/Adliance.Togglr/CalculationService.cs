@@ -10,7 +10,7 @@ public class CalculationService
 {
     private UserConfiguration User { get; }
     public IDictionary<DateTime, Day> Days { get; }
-    public IDictionary<(int, int), Week> Weeks { get; }
+    public IDictionary<(int year, int month, int weekNumber), Week> Weeks { get; }
 
     public CalculationService(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
     {
@@ -78,7 +78,7 @@ public class CalculationService
         }
 
         Days = days.OrderBy(x => x.Date).ToDictionary(x => x.Date, x => x);
-        Weeks = new Dictionary<(int, int), Week>();
+        Weeks = new Dictionary<(int year, int month, int weekNumber), Week>();
         AddMissingDays();
         CalculateRollingOvertime();
         CalculateRollingVacation();
@@ -172,7 +172,7 @@ public class CalculationService
             currentWeek.BusinessTripHours += d.BusinessTripHours;
             currentWeek.BreakDuration += d.Breaks;
 
-            Weeks[(d.Date.Month, d.Date.GetWeekNumber())] = currentWeek;
+            Weeks[(d.Date.Year, d.Date.Month, d.Date.GetWeekNumber())] = currentWeek;
         }
     }
 

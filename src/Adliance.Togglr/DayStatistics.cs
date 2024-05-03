@@ -52,9 +52,9 @@ public static class DayStatistics
                 WriteDay(configuration, sb, calculationService.Days[loopDate.Date]);
             }
             
-            if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && calculationService.Weeks.ContainsKey((loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
+            if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && calculationService.Weeks.ContainsKey((loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
             {
-                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
+                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
                 printedWeeklySummary = true;
             }
 
@@ -68,8 +68,8 @@ public static class DayStatistics
             shouldPrintDay = shouldPrintDay && (!configuration.PrintDetailsEnd.HasValue || lastDay <= configuration.PrintDetailsEnd.Value.Date);
             shouldPrintDay = shouldPrintDay && calculationService.Days.ContainsKey(lastDay);
             
-            if (shouldPrintDay && calculationService.Weeks.ContainsKey((lastDay.Month, lastDay.GetWeekNumber())))
-                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(lastDay.Month, lastDay.GetWeekNumber())]);
+            if (shouldPrintDay && calculationService.Weeks.ContainsKey((lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())))
+                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())]);
         }
 
         sb.AppendLine("</tbody>");
