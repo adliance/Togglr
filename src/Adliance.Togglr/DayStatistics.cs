@@ -82,7 +82,7 @@ public static class DayStatistics
         sb.AppendLine($"<tr class=\"{(day.Expected <= 0 ? "has-text-grey-light" : "")}\">");
         sb.AppendLine($"<td>{day.Date:dddd, dd.MM.yyyy}</td>");
 
-        if (day.Expected > 0)
+        if (day.Expected > 0 || day.Total > 0)
         {
             if (day.PrintTimes)
             {
