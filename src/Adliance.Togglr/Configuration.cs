@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Adliance.Togglr.Extensions;
@@ -54,9 +54,9 @@ public class UserConfiguration
 
     [JsonProperty("ignore_break_warnings")] public bool IgnoreBreakWarnings { get; set; }
 
-    [JsonProperty("homeoffice_weekdays")] public IEnumerable<string> HomeOfficeWeekdaysAsStrings { get; set; } = new string[0];
+    [JsonProperty("homeoffice_weekdays")] public IEnumerable<string> HomeOfficeWeekdaysAsStrings { get; set; } = Array.Empty<string>();
     public IEnumerable<DayOfWeek> HomeOfficeWeekdays => HomeOfficeWeekdaysAsStrings.Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.GetDayOfWeek());
-    [JsonProperty("homeoffice_deviation")] public IEnumerable<DateTime> HomeOfficeDeviation { get; set; } = new DateTime[0];
+    [JsonProperty("homeoffice_deviation")] public IEnumerable<DateTime> HomeOfficeDeviation { get; set; } = Array.Empty<DateTime>();
 }
 
 public class ExpectedWorkTimeConfiguration

@@ -27,7 +27,7 @@ public class ProjectTimeReportService
         Program.Logger.Info("Everything done. Goodbye.");
     }
 
-    private async Task RenderToMarkdown(IList<Entry> entries, ProjectTimeReportParameter configuration)
+    private static async Task RenderToMarkdown(IList<Entry> entries, ProjectTimeReportParameter configuration)
     {
         var file = new FileInfo(configuration.TargetPath);
         var directory = new DirectoryInfo(Path.GetDirectoryName(file.FullName)!);
@@ -39,18 +39,19 @@ public class ProjectTimeReportService
         }
 
         var markdown = new StringBuilder();
-        markdown.AppendLine($"Arbeitszeiten für Projekt **{entries.First().Project}** von **{configuration.From:dd. MMMM yyyy}** bis **{configuration.To:dd. MMMM yyyy}**:");
+        markdown.AppendLine(CultureInfo.CurrentCulture,
+            $"Arbeitszeiten für Projekt **{entries.First().Project}** von **{configuration.From:dd. MMMM yyyy}** bis **{configuration.To:dd. MMMM yyyy}**:");
         markdown.AppendLine();
         markdown.AppendLine("| Tag | Person | Task | Stunden |");
         markdown.AppendLine("|-|-|-|-:|");
 
         foreach (var e in entries)
         {
-            markdown.AppendLine($"| {e.Date:dd.MM.yyyy} | {e.User.Replace(" ", "&nbsp;")} | {e.Description} | {e.Hours:N2} |");
+            markdown.AppendLine(CultureInfo.CurrentCulture, $"| {e.Date:dd.MM.yyyy} | {e.User.Replace(" ", "&nbsp;")} | {e.Description} | {e.Hours:N2} |");
         }
 
         var totalHours = entries.Sum(x => x.Hours);
-        markdown.AppendLine($"| | | **Summe** | **{totalHours:N2}** |");
+        markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | **Summe** | **{totalHours:N2}** |");
 
         if (configuration.MaxPoolSize.HasValue)
         {
@@ -65,15 +66,14 @@ public class ProjectTimeReportService
                 totalHoursInProject = allEntries.Sum(x => x.Hours);
             }
 
-            markdown.AppendLine($"| | | <br />Gesamtumfang des Stundenpools | <br />{configuration.MaxPoolSize:N2} |");
-            markdown.AppendLine($"| | | **Verbleibend im Stundenpool** | **{configuration.MaxPoolSize - totalHoursInProject.Value:N2}** |");
+            markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | <br />Gesamtumfang des Stundenpools | <br />{configuration.MaxPoolSize:N2} |");
+            markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | **Verbleibend im Stundenpool** | **{configuration.MaxPoolSize - totalHoursInProject.Value:N2}** |");
         }
-
 
         await File.WriteAllTextAsync(file.FullName, markdown.ToString());
     }
 
-    private async Task<IList<Entry>> LoadEntries(ProjectTimeReportParameter configuration)
+    private static async Task<IList<Entry>> LoadEntries(ProjectTimeReportParameter configuration)
     {
         try
         {
@@ -85,7 +85,7 @@ public class ProjectTimeReportService
         }
     }
 
-    private async Task<IList<Entry>> LoadEntries(long workspace, string apiKey, DateTime from, DateTime to, long projectId)
+    private static async Task<IList<Entry>> LoadEntries(long workspace, string apiKey, DateTime from, DateTime to, long projectId)
     {
         Program.Logger.Info($"Downloading time entries for project \"{177670915}\" between {from:yyyy-MM-dd} and {to:yyyy-MM-dd} ...");
         var client = new TogglReportClient(new HttpClient(), Program.Logger);
@@ -107,7 +107,10 @@ public class ProjectTimeReportService
                 since: currentFrom,
                 until: currentTo,
                 billableOptions: BillableOptions.Both,
-                projectIds: new List<int> { (int)projectId }
+                projectIds: new List<int>
+                {
+                    (int)projectId
+                }
             ), apiToken: apiKey)).Data.OrderBy(x => x.Start).ToList();
 
             entries.AddRange(apiResults);
@@ -116,7 +119,7 @@ public class ProjectTimeReportService
             if (currentTo.Date > to.Date) currentTo = to.Date;
         } while (currentFrom < to);
 
-        if (!entries.Any()) throw new NoEntriesException(projectId.ToString());
+        if (!entries.Any()) throw new NoEntriesException(projectId.ToString(CultureInfo.CurrentCulture));
 
         Program.Logger.Info($"\t{entries.Count} entries found. Combining similar entries and applying CET timezone ...");
         var result = new List<Entry>();

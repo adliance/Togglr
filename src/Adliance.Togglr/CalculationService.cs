@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using TogglApi.Client.Reports.Models.Response;
 using Adliance.Togglr.Extensions;
+using TogglApi.Client.Reports.Models.Response;
 
 namespace Adliance.Togglr;
 
@@ -46,7 +46,7 @@ public class CalculationService
             else if (d.Date < new DateTime(2022, 07, 1) && d.Date >= homeOfficeStart.Date && !d.Specials.Any(x => x.Value > 0))
             {
                 // before July 2022 we used fixed days for HomeOffice
-                // after that we only use the entry description for specifying home office days 
+                // after that we only use the entry description for specifying home office days
                 d.IsHomeOffice = user.HomeOfficeWeekdays.Contains(d.DayOfWeek);
                 if (user.HomeOfficeDeviation.Any(x => x.Date == d.Date)) d.IsHomeOffice = !d.IsHomeOffice;
             }
@@ -54,7 +54,6 @@ public class CalculationService
             {
                 d.IsHomeOffice = false;
             }
-
 
             DetailedReportDatum? previousEntry = null;
             foreach (var e in dayPair.Value.OrderBy(x => x.Start))
@@ -94,7 +93,7 @@ public class CalculationService
             if (!Days.ContainsKey(loopDate))
             {
                 var previousDay = loopDate.AddDays(-1);
-                Days[loopDate] = new Day(loopDate, Days.ContainsKey(previousDay) ? Days[previousDay].RollingOvertime : 0)
+                Days[loopDate] = new Day(loopDate, Days.TryGetValue(previousDay, out var value) ? value.RollingOvertime : 0)
                 {
                     Expected = GetExpectedHours(loopDate, false)
                 };

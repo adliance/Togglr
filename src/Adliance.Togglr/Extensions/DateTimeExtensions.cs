@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using NodaTime;
 
@@ -11,7 +11,7 @@ public static class DateTimeExtensions
         var culture = new CultureInfo("de-AT");
         return culture.Calendar.GetWeekOfYear(d, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
     }
-    
+
     public static DateTime UtcToCet(this DateTime dateTime)
     {
         var vienna = DateTimeZoneProviders.Tzdb["Europe/Vienna"];

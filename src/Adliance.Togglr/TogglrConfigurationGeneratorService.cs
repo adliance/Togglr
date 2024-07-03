@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -20,7 +20,7 @@ public class TogglrConfigurationGeneratorService
         {
             WorkspaceId = 0,
             ApiToken = "",
-  
+
             ProjectNameVacation = "Urlaub",
             ProjectNameSpecialVacation = "Sonderurlaub",
             ProjectNameHoliday = "Feiertag",
@@ -28,10 +28,10 @@ public class TogglrConfigurationGeneratorService
             ProjectNameSick = "Krankenstand",
             ProjectNameDoctor = "Arztbesuch",
             ProjectNameLegacyVacationHolidaySick = "ALT= Feiertag, Krankenstand, Urlaub",
-  
-            Users = new []
+
+            Users = new[]
             {
-                new UserConfiguration 
+                new UserConfiguration
                 {
                     Name = "Teammember 1",
                     Begin =  new DateTime(2018, 04, 03),
@@ -52,13 +52,13 @@ public class TogglrConfigurationGeneratorService
                         }
                     },
                 },
-                new UserConfiguration 
+                new UserConfiguration
                 {
                     Name = "Teammember 2",
                     Begin = new DateTime(2019, 11, 03),
                     HoursPerDay = 7.7
                 },
-                new UserConfiguration 
+                new UserConfiguration
                 {
                     Name = "Teammember 3",
                     Begin = new DateTime(2020,01,01),
@@ -70,7 +70,7 @@ public class TogglrConfigurationGeneratorService
 
         var exampleConfigurationJsonString = JsonConvert.SerializeObject(exampleConfiguration, Formatting.Indented);
         await File.WriteAllTextAsync(_configuration.ConfigurationFilePath, exampleConfigurationJsonString);
-            
+
         return ExitCode.Ok;
     }
 }

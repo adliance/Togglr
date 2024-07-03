@@ -1,4 +1,5 @@
-﻿using System.Text;
+using System.Globalization;
+using System.Text;
 
 namespace Adliance.Togglr;
 
@@ -21,7 +22,7 @@ public static class HtmlHelper
     public static void WriteDocumentTitle(StringBuilder sb, string user)
     {
         sb.AppendLine("<section class=\"hero is-primary\"><div class=\"hero-body\">");
-        sb.AppendLine($"<div class=\"container\"><h1 class=\"title\">Arbeitszeit von {user}</h1></div>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<div class=\"container\"><h1 class=\"title\">Arbeitszeit von {user}</h1></div>");
         sb.AppendLine("</div>\n</section>");
     }
 }

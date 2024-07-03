@@ -16,7 +16,6 @@ public class ProjectTimeReportParameter
     [Option('m', "max-poolsize", Required = false, HelpText = "(Optional) The maximum hours pool size for the specified project.")] public double? MaxPoolSize { get; set; }
     [Option('c', "current-poolsize", Required = false, HelpText = "(Optional) The currently remaining hours pool size for the specified project. Leave empty to calculate automatically.")] public double? CurrentPoolSize { get; set; }
 
-
     public DateTime From
     {
         get

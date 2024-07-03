@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -51,12 +51,12 @@ public class TogglClient
                         new DateTime(i, 1, 1),
                         new DateTime(i, 12, 31).AddDays(1).AddSeconds(-1)));
                 }
-                
+
                 await File.WriteAllTextAsync("entries_until_" + configuration.CacheEntriesUntilYear + ".json", JsonConvert.SerializeObject(entries));
                 entries = new List<DetailedReportDatum>();
             }
         }
-        
+
         for (var i = configuration.CacheEntriesUntilYear + 1 ?? 2015; i <= DateTime.UtcNow.Year; i++)
         {
             entries.AddRange(await DownloadEntries(
@@ -81,7 +81,7 @@ public class TogglClient
                 new List<DetailedReportDatum>();
             entries = entries.Concat(oldEntries).ToList();
         }
-        
+
         var fixedEntries = new List<DetailedReportDatum>();
         foreach (var entry in entries)
         {
@@ -89,7 +89,7 @@ public class TogglClient
 
             var startDate = new DateTime(fixedEntry.Start.Year, fixedEntry.Start.Month, fixedEntry.Start.Day, fixedEntry.Start.Hour, fixedEntry.Start.Minute, 0);
             var endDate = new DateTime(fixedEntry.End.Year, fixedEntry.End.Month, fixedEntry.End.Day, fixedEntry.End.Hour, fixedEntry.End.Minute, 0);
-            
+
             // dirty hack to work around time zones and time entries that start at 00:00 (usually holiday/vacation)
             while (startDate.Date != endDate.Date)
             {

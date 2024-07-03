@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,10 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Adliance.Togglr.Extensions;
 using Newtonsoft.Json;
-using NLog;
-using NLog.Config;
-using NLog.Layouts;
-using NLog.Targets;
 using TogglApi.Client.Reports.Models.Response;
 
 namespace Adliance.Togglr;

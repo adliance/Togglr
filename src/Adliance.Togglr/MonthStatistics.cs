@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Adliance.Togglr.Extensions;
@@ -29,7 +30,7 @@ public static class MonthStatistics
         sb.AppendLine("<tbody>");
 
         if (!calculationService.Days.Any()) return;
-        
+
         var minDate = calculationService.Days.OrderBy(x => x.Key).Select(x => x.Value).First();
         var maxDate = calculationService.Days.OrderBy(x => x.Key).Select(x => x.Value).Last();
         var loopDate = new DateTime(minDate.Date.Year, minDate.Date.Month, 1);
@@ -37,19 +38,21 @@ public static class MonthStatistics
         {
             var entries = calculationService.Days.Where(x => x.Key.Year == loopDate.Year && x.Key.Month == loopDate.Month).Select(x => x.Value).OrderBy(x => x.Date).ToList();
             sb.AppendLine("<tr>");
-            sb.AppendLine($"<td>{loopDate:MMMM yyyy}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Expected):N2}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Total):N2}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{(100d / entries.Sum(x => x.BillableBase) * entries.Sum(x => x.BillableActual)).FormatBillable()}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.Overtime).FormatColor()}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Last().RollingOvertime.FormatColor()}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.IsHomeOffice)}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Sum(x => x.BusinessTripHours)}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</td>");
-            sb.AppendLine($"<td class=\"has-text-right\" title=\"{entries.Last().RollingVacationInHours:N2} hours vacation\">{entries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{loopDate:MMMM yyyy}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.Expected):N2}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.Total):N2}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{(100d / entries.Sum(x => x.BillableBase) * entries.Sum(x => x.BillableActual)).FormatBillable()}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.Overtime).FormatColor()}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Last().RollingOvertime.FormatColor()}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.IsHomeOffice)}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.BusinessTripHours)}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture,
+                $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture,
+                $"<td class=\"has-text-right\" title=\"{entries.Last().RollingVacationInHours:N2} hours vacation\">{entries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</td>");
             sb.AppendLine("</tr>");
 
             loopDate = loopDate.AddMonths(1);
@@ -63,21 +66,23 @@ public static class MonthStatistics
         sb.AppendLine("<th></th>");
         sb.AppendLine("<th></th>");
         var allEntries = calculationService.Days.OrderBy(x => x.Key).Select(x => x.Value).ToList();
-        sb.AppendLine($"<td class=\"has-text-right\">{(100d / allEntries.Sum(x => x.BillableBase) * allEntries.Sum(x => x.BillableActual)).FormatBillable()}</td>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{(100d / allEntries.Sum(x => x.BillableBase) * allEntries.Sum(x => x.BillableActual)).FormatBillable()}</td>");
         sb.AppendLine("<th></th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Last().RollingOvertime.FormatColor()}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.IsHomeOffice)}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Sum(x => x.BusinessTripHours)}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</th>");
-        sb.AppendLine($"<th class=\"has-text-right\">{allEntries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Last().RollingOvertime.FormatColor()}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.IsHomeOffice)}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Sum(x => x.BusinessTripHours)}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture,
+            $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</th>");
         sb.AppendLine("</tr>");
         sb.AppendLine("</tfoot>");
         sb.AppendLine("</table>");
 
-        sb.AppendLine($"<div class=\"is-size-7 has-text-grey-light\">* Urlaubsanspruch wird auf Basis des aktuellen Anstellungsausmaßes von {calculationService.GetExpectedHours(DateTime.Now, true):N2}h/Tag berechnet. Verrechenbare Stunden werden exklusive Urlaub, Krankenstand und Feiertage berechnet.</div>");
+        sb.AppendLine(CultureInfo.CurrentCulture,
+            $"<div class=\"is-size-7 has-text-grey-light\">* Urlaubsanspruch wird auf Basis des aktuellen Anstellungsausmaßes von {calculationService.GetExpectedHours(DateTime.Now, true):N2}h/Tag berechnet. Verrechenbare Stunden werden exklusive Urlaub, Krankenstand und Feiertage berechnet.</div>");
 
         if (calculationService.Days.Any(x => x.Value.Warnings.Any()))
         {
@@ -91,11 +96,11 @@ public static class MonthStatistics
             foreach (var day in calculationService.Days.Where(x => x.Value.Warnings.Any()).OrderBy(x => x.Key).Select(x => x.Value))
             {
                 sb.AppendLine("<tr>");
-                sb.AppendLine($"<td>{day.Date:dd MMMM yyyy}</td>");
+                sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{day.Date:dd MMMM yyyy}</td>");
                 sb.AppendLine("<td>");
                 foreach (var w in day.Warnings)
                 {
-                    sb.Append($"<div><span class=\"tag is-danger\">{w}</span></div>");
+                    sb.Append(CultureInfo.CurrentCulture, $"<div><span class=\"tag is-danger\">{w}</span></div>");
                 }
 
                 sb.AppendLine("</td>");

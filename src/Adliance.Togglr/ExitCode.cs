@@ -1,4 +1,4 @@
-﻿namespace Adliance.Togglr;
+namespace Adliance.Togglr;
 
 public enum ExitCode
 {

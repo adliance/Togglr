@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Adliance.Togglr.Extensions;
 
@@ -29,7 +29,7 @@ public static class DoubleExtensions
     public static string FormatBillable(this double value)
     {
         if (double.IsNaN(value)) return "";
-            
+
         value = Math.Round(value, 2);
 
         if (value > 90)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using TogglApi.Client.Reports.Models.Response;
 
@@ -12,7 +12,7 @@ public static class EntryExtensions
         "Adliance Website",
         "Zertifizierung, QM"
     };
-        
+
     public static bool IsBillable(this DetailedReportDatum entry)
     {
         if (string.IsNullOrEmpty(entry.Project)) return false;

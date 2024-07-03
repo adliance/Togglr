@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Adliance.Togglr.ProjectTimeReport;
@@ -74,11 +74,11 @@ public class Program
     {
         Exit(-1, ex.Message);
     }
-    
+
     private static void SetupLogging()
     {
         var loggingConfig = new LoggingConfiguration();
-        var consoleTarget = new ColoredConsoleTarget("Colored Console") {Layout = new SimpleLayout("${time} ${message}")};
+        var consoleTarget = new ColoredConsoleTarget("Colored Console") { Layout = new SimpleLayout("${time} ${message}") };
         loggingConfig.AddTarget(consoleTarget);
         loggingConfig.LoggingRules.Add(new LoggingRule("*", LogLevel.Info, consoleTarget));
 
