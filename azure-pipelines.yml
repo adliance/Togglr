@@ -1,4 +1,4 @@
-name: 1.0.$(Rev:r)
+name: 1.1.$(Rev:r)
 
 resources:
 - repo: self
@@ -19,9 +19,9 @@ steps:
   clean: true
 
 - task: UseDotNet@2
-  displayName: "Install .NET Core 6.0.x"
+  displayName: "Install .NET"
   inputs:
-    version: '6.0.x'
+    version: '8.0.x'
     packageType: sdk
 
 - script: |
@@ -30,12 +30,6 @@ steps:
     cd src/Adliance.Togglr
     setversion $(Build.BuildNumber)
   displayName: 'Set Version'
-
-- task: UseDotNet@2
-  displayName: "Install .NET Core 7.0.x"
-  inputs:
-    version: '7.0.x'
-    packageType: sdk
 
 - task: DotNetCoreCLI@2
   displayName: Restore

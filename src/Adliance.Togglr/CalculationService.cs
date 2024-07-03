@@ -20,23 +20,23 @@ public class CalculationService
         {
             var d = new Day(dayPair.Key.Date)
             {
-                Total = Math.Round(dayPair.Value.Sum(x => (x.End - x.Start).TotalHours), 2),
-                Billable = Math.Round(dayPair.Value.Where(x => x.IsBillable()).Sum(x => (x.End - x.Start).TotalHours), 2),
+                Total = dayPair.Value.Sum(x => (x.End - x.Start).TotalHours),
+                Billable = dayPair.Value.Where(x => x.IsBillable()).Sum(x => (x.End - x.Start).TotalHours),
                 Specials =
                 {
-                    [Special.Doctor] = Math.Round(dayPair.Value.Where(x => x.IsDoctor()).Sum(x => (x.End - x.Start).TotalHours), 2),
-                    [Special.Holiday] = Math.Round(dayPair.Value.Where(x => x.IsHoliday()).Sum(x => (x.End - x.Start).TotalHours), 2),
-                    [Special.PersonalHoliday] = Math.Round(dayPair.Value.Where(x => x.IsPersonalHoliday()).Sum(x => (x.End - x.Start).TotalHours), 2),
-                    [Special.Sick] = Math.Round(dayPair.Value.Where(x => x.IsSick()).Sum(x => (x.End - x.Start).TotalHours), 2),
-                    [Special.Vacation] = Math.Round(dayPair.Value.Where(x => x.IsVacation()).Sum(x => (x.End - x.Start).TotalHours), 2),
-                    [Special.SpecialVacation] = Math.Round(dayPair.Value.Where(x => x.IsSpecialVacation()).Sum(x => (x.End - x.Start).TotalHours), 2),
-                    [Special.LegacyVacationHolidaySick] = Math.Round(dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours), 2)
+                    [Special.Doctor] = dayPair.Value.Where(x => x.IsDoctor()).Sum(x => (x.End - x.Start).TotalHours),
+                    [Special.Holiday] = dayPair.Value.Where(x => x.IsHoliday()).Sum(x => (x.End - x.Start).TotalHours),
+                    [Special.PersonalHoliday] = dayPair.Value.Where(x => x.IsPersonalHoliday()).Sum(x => (x.End - x.Start).TotalHours),
+                    [Special.Sick] = dayPair.Value.Where(x => x.IsSick()).Sum(x => (x.End - x.Start).TotalHours),
+                    [Special.Vacation] = dayPair.Value.Where(x => x.IsVacation()).Sum(x => (x.End - x.Start).TotalHours),
+                    [Special.SpecialVacation] = dayPair.Value.Where(x => x.IsSpecialVacation()).Sum(x => (x.End - x.Start).TotalHours),
+                    [Special.LegacyVacationHolidaySick] = dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours)
                 },
                 Expected = GetExpectedHours(dayPair.Key, false),
                 HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase)),
                 Start = dayPair.Value.Any() ? dayPair.Value.Select(x => x.Start).Min() : null,
                 End = dayPair.Value.Any() ? dayPair.Value.Select(x => x.End).Max() : null,
-                BusinessTripHours = Math.Round(dayPair.Value.Where(x => x.Description.Contains("dienstreise", StringComparison.OrdinalIgnoreCase)).Sum(x => (x.End - x.Start).TotalHours), 2)
+                BusinessTripHours = dayPair.Value.Where(x => x.Description.Contains("dienstreise", StringComparison.OrdinalIgnoreCase)).Sum(x => (x.End - x.Start).TotalHours)
             };
 
             if (d.HasEntryForHomeOffice && d.Date >= homeOfficeStart.Date && !d.Specials.Where(x => x.Key != Special.Doctor).Any(x => x.Value > 0))
@@ -146,7 +146,7 @@ public class CalculationService
             d.RollingVacationInHours = rollingVacation;
         }
     }
-    
+
     private void CalculateWeeks()
     {
         Week? currentWeek = null;
@@ -225,7 +225,7 @@ public class CalculationService
             {
                 // no warning when the user is not supposed to work on this day
                 if (d.Expected <= 0) continue;
-                
+
                 // no warning on 24th and 31th of decemger
                 if (d.Date is { Month: 12, Day: 24 or 31 }) continue;
 
@@ -287,8 +287,16 @@ public class CalculationService
 
         public double Billable { get; set; }
 
-        public double BillableActual => Billable - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
-        public double BillableBase => Total - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
+        public double BillableActual => Billable - Specials.Where(x => !new[]
+        {
+            Special.Doctor
+        }.Contains(x.Key)).Sum(x => x.Value);
+
+        public double BillableBase => Total - Specials.Where(x => !new[]
+        {
+            Special.Doctor
+        }.Contains(x.Key)).Sum(x => x.Value);
+
         public double Expected { get; set; }
         public double BusinessTripHours { get; set; }
         public DateTime? Start { get; set; }
@@ -315,14 +323,17 @@ public class CalculationService
             {
                 foreach (var s in Specials)
                 {
-                    if (s.Value > 0 && new[] { Special.Holiday, Special.Sick, Special.Vacation, Special.PersonalHoliday, Special.SpecialVacation, Special.LegacyVacationHolidaySick }.Contains(s.Key)) return false;
+                    if (s.Value > 0 && new[]
+                        {
+                            Special.Holiday, Special.Sick, Special.Vacation, Special.PersonalHoliday, Special.SpecialVacation, Special.LegacyVacationHolidaySick
+                        }.Contains(s.Key)) return false;
                 }
 
                 return true;
             }
         }
     }
-    
+
     public class Week
     {
         public Week(double rollingOvertime = 0)
@@ -341,14 +352,22 @@ public class CalculationService
 
         public double Billable { get; set; }
 
-        public double BillableActual => Billable - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
-        public double BillableBase => Total - Specials.Where(x => !new[] { Special.Doctor }.Contains(x.Key)).Sum(x => x.Value);
+        public double BillableActual => Billable - Specials.Where(x => !new[]
+        {
+            Special.Doctor
+        }.Contains(x.Key)).Sum(x => x.Value);
+
+        public double BillableBase => Total - Specials.Where(x => !new[]
+        {
+            Special.Doctor
+        }.Contains(x.Key)).Sum(x => x.Value);
+
         public double BusinessTripHours { get; set; }
         public double BreakDuration { get; set; }
         public double Expected { get; set; }
         public double Overtime => Total - Expected;
         public double RollingOvertime { get; set; }
-        
+
         public bool HasEntryForHomeOffice { get; set; }
         public double RollingVacationInDays { get; set; }
         public double RollingVacationInHours { get; set; }
