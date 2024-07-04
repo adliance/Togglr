@@ -45,12 +45,12 @@ public static class MonthStatistics
             sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.Overtime).FormatColor()}</td>");
             sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Last().RollingOvertime.FormatColor()}</td>");
             sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.IsHomeOffice)}</td>");
-            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.BusinessTripHours)}</td>");
-            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</td>");
-            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Sum(x => x.BusinessTripHours):N2}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.Holiday }))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.Sick }))}</td>");
             sb.AppendLine(CultureInfo.CurrentCulture,
                 $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</td>");
-            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{entries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.Vacation }))}</td>");
             sb.AppendLine(CultureInfo.CurrentCulture,
                 $"<td class=\"has-text-right\" title=\"{entries.Last().RollingVacationInHours:N2} hours vacation\">{entries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</td>");
             sb.AppendLine("</tr>");
@@ -70,12 +70,12 @@ public static class MonthStatistics
         sb.AppendLine("<th></th>");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Last().RollingOvertime.FormatColor()}</th>");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.IsHomeOffice)}</th>");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Sum(x => x.BusinessTripHours)}</th>");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Holiday))}</th>");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Sick))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Sum(x => x.BusinessTripHours):N2}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.Holiday }))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.Sick }))}</th>");
         sb.AppendLine(CultureInfo.CurrentCulture,
-            $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.SpecialVacation))}</th>");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y.Value > 0 && y.Key == CalculationService.Special.Vacation))}</th>");
+            $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.SpecialVacation }))}</th>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Count(x => x.Specials.Any(y => y is { Value: > 0, Key: CalculationService.Special.Vacation }))}</th>");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<th class=\"has-text-right\">{allEntries.Last().RollingVacationInDays.FormatColor(hideWhenZero: false)}</th>");
         sb.AppendLine("</tr>");
         sb.AppendLine("</tfoot>");
