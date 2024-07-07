@@ -18,7 +18,7 @@ public static class DayStatistics
 
         sb.AppendLine("<div class=\"container\">");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<h2 class=\"title is-5\" style=\"margin: 2rem 0 0 0;\">{firstDayOfMonth:MMMM yyyy}</h2>");
-        sb.AppendLine("<table class=\"table is-size-7\" style=\"margin:1rem 0 0 0;\">");
+        sb.AppendLine("<table class=\"table is-size-7 is-fullwidth\" style=\"margin:1rem 0 0 0;\">");
         sb.AppendLine("<thead><tr>");
         sb.AppendLine("<th>Tag</th>");
         sb.AppendLine("<th>Arbeitszeit</th>");
@@ -55,7 +55,7 @@ public static class DayStatistics
 
             if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && calculationService.Weeks.ContainsKey((loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
             {
-                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
+                WriteWeeklySummary(configuration, sb, loopDate.Date,  calculationService.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
                 printedWeeklySummary = true;
             }
 
@@ -70,7 +70,9 @@ public static class DayStatistics
             shouldPrintDay = shouldPrintDay && calculationService.Days.ContainsKey(lastDay);
 
             if (shouldPrintDay && calculationService.Weeks.ContainsKey((lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())))
-                WriteWeeklySummary(configuration, sb, calculationService.Weeks[(lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())]);
+            {
+                WriteWeeklySummary(configuration, sb, lastDay, calculationService.Weeks[(lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())]);
+            }
         }
 
         sb.AppendLine("</tbody>");
@@ -87,7 +89,7 @@ public static class DayStatistics
         {
             if (day.PrintTimes)
             {
-                if (day.Start.HasValue && day.End.HasValue)
+                if (day is { Start: not null, End: not null })
                 {
                     sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{day.Start.Value.UtcToCet():HH:mm}-{day.End.Value.UtcToCet():HH:mm}</td>");
                 }
@@ -96,7 +98,7 @@ public static class DayStatistics
                     sb.AppendLine("<td></td>");
                 }
 
-                if (day.BreakStart.HasValue && day.BreakEnd.HasValue)
+                if (day is { BreakStart: not null, BreakEnd: not null })
                 {
                     sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{day.BreakStart.Value.UtcToCet():HH:mm}-{day.BreakEnd.Value.UtcToCet():HH:mm}</td>");
                 }
@@ -110,13 +112,13 @@ public static class DayStatistics
                 sb.AppendLine("<td></td><td></td>");
             }
 
-            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.Expected:N2}</td>");
-            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.Total:N2}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.Expected.HideWhenZero()}</td>");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.Total.HideWhenZero()}</td>");
             sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{(100d / day.BillableBase * day.BillableActual).FormatBillable()}</td>");
 
             if (day.PrintTimes)
             {
-                sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.Breaks:N2}</td>");
+                sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.Breaks.HideWhenZero()}</td>");
             }
             else
             {
@@ -130,7 +132,7 @@ public static class DayStatistics
 
         sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right has-text-success\">{day.Overtime.FormatColor()}</td>");
 
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.BusinessTripHours}</td>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{day.BusinessTripHours.HideWhenZero()}</td>");
 
         sb.AppendLine(day.Expected > 0
             ? $"<td class=\"has-text-right has-text-success\">{day.RollingOvertime.FormatColor()}</td>"
@@ -145,7 +147,7 @@ public static class DayStatistics
             sb.AppendLine("<td></td>");
         }
 
-        sb.Append(CultureInfo.CurrentCulture, $"<td title=\"{day.VacationInHours:N2} hours vacation added\">");
+        sb.Append(CultureInfo.CurrentCulture, $"<td title=\"{day.VacationInHours.HideWhenZero()} hours vacation added\">");
         foreach (var s in day.Specials.Where(x => x.Value > 0))
         {
             sb.Append(CultureInfo.CurrentCulture, $"<span class=\"tag is-success\">{s.Key.GetName(configuration)}</span> ");
@@ -161,14 +163,14 @@ public static class DayStatistics
         sb.AppendLine("</tr>");
     }
 
-    private static void WriteWeeklySummary(Configuration configuration, StringBuilder sb, CalculationService.Week week)
+    private static void WriteWeeklySummary(Configuration configuration, StringBuilder sb, DateTime weekStart, CalculationService.Week week)
     {
         sb.AppendLine("<tr class=\"has-text-weight-semibold\">");
-        sb.AppendLine("<td>Summary:</td>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"pb-5\">Summary KW {weekStart.GetWeekNumber()}</td>");
         sb.AppendLine("<td></td>");
         sb.AppendLine("<td></td>");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{week.Expected:N2}</td>");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{week.Total:N2}</td>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{week.Expected:N2}</td>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{week.Total:N2}</td>");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{(100d / week.BillableBase * week.BillableActual).FormatBillable()}</td>");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"has-text-right\">{week.BreakDuration:N2}</td>");
 
@@ -194,7 +196,6 @@ public static class DayStatistics
         }
 
         sb.AppendLine("</td>");
-
         sb.AppendLine("</tr>");
     }
 }

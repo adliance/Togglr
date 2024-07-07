@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace Adliance.Togglr.Extensions;
 
@@ -24,6 +25,20 @@ public static class DoubleExtensions
         }
 
         return $"<span class=\"has-text-light\">{value:N2}{append}</span>";
+    }
+
+    public static string HideWhenZero(this double value, bool formatWithCommas = true)
+    {
+        if (value == 0) return "";
+
+        if (formatWithCommas) return value.ToString("N2", CultureInfo.CurrentCulture);
+        return value.ToString("N0", CultureInfo.CurrentCulture);
+    }
+
+    public static string HideWhenZero(this int value)
+    {
+        if (value == 0) return "";
+        return value.ToString("N0", CultureInfo.CurrentCulture);
     }
 
     public static string FormatBillable(this double value)

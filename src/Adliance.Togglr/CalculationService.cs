@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Adliance.Togglr.Extensions;
 using TogglApi.Client.Reports.Models.Response;
 
@@ -181,7 +182,7 @@ public class CalculationService
         {
             if (!ignoreBreakWarnings)
             {
-                if (d.Total - d.Specials.Sum(x => x.Value) > 6 && !d.Has30MinutesBreak)
+                if (Math.Round(d.Total - d.Specials.Sum(x => x.Value),9) > 6 && !d.Has30MinutesBreak)
                 {
                     d.Warnings.Add("Pause von mindestens 30 Minuten fehlt.");
                 }
