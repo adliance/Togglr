@@ -2,23 +2,23 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>default</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    
+
     <AssemblyName>Adliance.Togglr</AssemblyName>
     <RootNamespace>Adliance.Togglr</RootNamespace>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <Version>0.0.0</Version>
     <FileVersion>0.0.0.0</FileVersion>
-    <Authors>Hannes Sachsenhofer, Christoph Kopf, Philipp Burndorfer</Authors>
+    <Authors>Hannes Sachsenhofer, Christoph Kopf, Philipp Burndorfer, Daniel Morawetz, Alex Freistetter</Authors>
     <Company>Adliance GmbH</Company>
     <Product>Adliance.Togglr</Product>
     <Description>Takes Toggl time entries and generates nice looking HTML reports in accordance to Austrian labor laws.</Description>
     <Copyright>Adliance GmbH</Copyright>
     <PackageProjectUrl>https://www.adliance.net</PackageProjectUrl>
-    
+
     <!-- .NET tool -->
     <PackAsTool>true</PackAsTool>
     <IsPackable>true</IsPackable>
@@ -28,12 +28,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Adliance.Buddy.CodeStyle" Version="8.0.0.7" />
+    <PackageReference Include="Adliance.Buddy.CodeStyle" Version="8.0.0.8" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NLog" Version="5.1.3" />
+    <PackageReference Include="NLog" Version="5.1.4" />
     <PackageReference Include="TogglApi.Client" Version="0.5.2" />
-    <PackageReference Include="NodaTime" Version="3.1.9" />
+    <PackageReference Include="NodaTime" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
