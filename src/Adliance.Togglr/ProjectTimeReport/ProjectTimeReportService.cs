@@ -71,13 +71,10 @@ public class ProjectTimeReportService
         }
 
         var difference = configuration.To - configuration.From;
-        var months = Math.Ceiling(difference.TotalDays);
-        months = Math.Ceiling(months / 30d);
+        var months = difference.TotalDays;
+        months = Math.Ceiling(months / 31d); // we round up anyways, so use 31 instead of 30
         if (months <= 0) months = 1;
-        if (months > 1)
-        {
-            markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | Ø über {months:N0} Monate | {totalHours / months:N2} |");
-        }
+        if (months > 1) markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | Ø über {months:N0} Monate | {totalHours / months:N2} |");
 
         await File.WriteAllTextAsync(file.FullName, markdown.ToString());
     }
