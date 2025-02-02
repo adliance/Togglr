@@ -31,9 +31,9 @@
     <PackageReference Include="Adliance.Buddy.CodeStyle" Version="8.0.0.8" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NLog" Version="5.1.4" />
+    <PackageReference Include="NLog" Version="5.3.4" />
     <PackageReference Include="TogglApi.Client" Version="0.5.2" />
-    <PackageReference Include="NodaTime" Version="3.2.0" />
+    <PackageReference Include="NodaTime" Version="3.2.1" />
   </ItemGroup>
 
   <ItemGroup>

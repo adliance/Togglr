@@ -70,13 +70,14 @@ public class ProjectTimeReportService
             markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | **Verbleibend im Stundenpool** | **{configuration.MaxPoolSize - totalHoursInProject.Value:N2}** |");
         }
 
-        double months = Math.Abs((configuration.To.Year - configuration.From.Year) * 12) + Math.Abs(configuration.To.Month - configuration.From.Month) + 1;
+        var difference = configuration.To - configuration.From;
+        var months = Math.Ceiling(difference.TotalDays);
+        months = Math.Ceiling(months / 30d);
         if (months <= 0) months = 1;
         if (months > 1)
         {
             markdown.AppendLine(CultureInfo.CurrentCulture, $"| | | Ø über {months:N0} Monate | {totalHours / months:N2} |");
         }
-
 
         await File.WriteAllTextAsync(file.FullName, markdown.ToString());
     }
