@@ -9,17 +9,10 @@ using Adliance.Togglr.Extensions;
 using Newtonsoft.Json;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Adliance.Togglr;
+namespace Adliance.Togglr.Report;
 
-public class TogglrReportGeneratorService
+public class ReportService(ReportParameter reportParameter)
 {
-    private readonly TogglrReportGeneratorParameter _togglrReportGeneratorParameter;
-
-    public TogglrReportGeneratorService(TogglrReportGeneratorParameter togglrReportGeneratorParameter)
-    {
-        _togglrReportGeneratorParameter = togglrReportGeneratorParameter;
-    }
-
     private Configuration Configuration { get; set; } = new();
     public static List<DetailedReportDatum> AllEntries = new();
 
@@ -30,15 +23,15 @@ public class TogglrReportGeneratorService
 
         try
         {
-            Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_togglrReportGeneratorParameter.ConfigurationFilePath)) ?? throw new Exception("Unable to deserialize configuration.");
+            Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(reportParameter.ConfigurationFilePath)) ?? throw new Exception("Unable to deserialize configuration.");
         }
         catch (Exception ex)
         {
-            Program.Logger.Fatal(ex, $"Unable to load {_togglrReportGeneratorParameter.ConfigurationFilePath}: {ex.Message}");
+            Program.Logger.Fatal(ex, $"Unable to load {reportParameter.ConfigurationFilePath}: {ex.Message}");
             return ExitCode.Error;
         }
 
-        if (Configuration.WorkspaceId == default || string.IsNullOrWhiteSpace(Configuration.ApiToken))
+        if (Configuration.WorkspaceId == 0 || string.IsNullOrWhiteSpace(Configuration.ApiToken))
         {
             Program.Logger.Fatal("API Token or Workspace ID not configured in configuration.json");
             return ExitCode.Error;
@@ -65,7 +58,7 @@ public class TogglrReportGeneratorService
                 continue;
             }
 
-            Program.Logger.Info($"Working on {_togglrReportGeneratorParameter.OutputPath}{userPair.Key}...");
+            Program.Logger.Info($"Working on {reportParameter.OutputPath}{userPair.Key}...");
 
             var sb = new StringBuilder();
             HtmlHelper.WriteHtmlBegin(sb);
@@ -74,7 +67,7 @@ public class TogglrReportGeneratorService
             userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date : userConfiguration.End;
             if (Configuration.End.HasValue && Configuration.End.Value < userConfiguration.End) userConfiguration.End = Configuration.End.Value; // if we have a user end, and a global end, use the global end
 
-            var calculationService = new CalculationService(userConfiguration, userPair.Value, Configuration.HomeOfficeStart ?? DateTime.MaxValue);
+            var calculationService = new UserReportService(userConfiguration, userPair.Value, Configuration.HomeOfficeStart ?? DateTime.MaxValue);
             MonthStatistics.WriteEveryMonth(sb, calculationService);
 
             var loopDate = new DateTime(userConfiguration.End.Year, userConfiguration.End.Month, 1);
@@ -85,7 +78,7 @@ public class TogglrReportGeneratorService
             }
 
             HtmlHelper.WriteHtmlEnd(sb);
-            await File.WriteAllTextAsync($"{_togglrReportGeneratorParameter.OutputPath}{userPair.Key}.html", sb.ToString());
+            await File.WriteAllTextAsync($"{reportParameter.OutputPath}{userPair.Key}.html", sb.ToString());
         }
 
         Program.Logger.Info("Everything done. Goodbye.");

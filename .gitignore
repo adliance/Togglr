@@ -29,3 +29,4 @@ bld/
 # Custom files
 configuration.json
 .DS_Store
+.editorconfig

@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Adliance.Togglr.Extensions;
 using TogglApi.Client.Reports.Models.Response;
 
-namespace Adliance.Togglr;
+namespace Adliance.Togglr.Report;
 
-public class CalculationService
+public class UserReportService
 {
     private UserConfiguration User { get; }
     public IDictionary<DateTime, Day> Days { get; }
     public IDictionary<(int year, int month, int weekNumber), Week> Weeks { get; }
 
-    public CalculationService(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
+    public UserReportService(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
     {
         User = user;
         var days = new List<Day>();
@@ -220,7 +219,7 @@ public class CalculationService
                 d.Warnings.Add("Kein Arbeitstag, kein Urlaub/Sonderurlaub/Krankenstand/Feiertag möglich.");
             }
 
-            var holidaysOfOthers = TogglrReportGeneratorService.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
+            var holidaysOfOthers = ReportService.AllEntries.Where(x => x.Start.Date == d.Date && x.IsHoliday()).ToList();
             if (d.Specials[Special.Holiday] <= 0 && holidaysOfOthers.Any())
             {
                 // no warning when the user is not supposed to work on this day
@@ -389,16 +388,16 @@ public class CalculationService
 
 public static class SpecialExtensions
 {
-    public static string GetName(this CalculationService.Special special, Configuration configuration)
+    public static string GetName(this UserReportService.Special special, Configuration configuration)
     {
         return special switch
         {
-            CalculationService.Special.Vacation => configuration.ProjectNameVacation,
-            CalculationService.Special.SpecialVacation => configuration.ProjectNameSpecialVacation,
-            CalculationService.Special.Holiday => configuration.ProjectNameHoliday,
-            CalculationService.Special.PersonalHoliday => configuration.ProjectNamePersonalHoliday,
-            CalculationService.Special.Sick => configuration.ProjectNameSick,
-            CalculationService.Special.Doctor => configuration.ProjectNameDoctor,
+            UserReportService.Special.Vacation => configuration.ProjectNameVacation,
+            UserReportService.Special.SpecialVacation => configuration.ProjectNameSpecialVacation,
+            UserReportService.Special.Holiday => configuration.ProjectNameHoliday,
+            UserReportService.Special.PersonalHoliday => configuration.ProjectNamePersonalHoliday,
+            UserReportService.Special.Sick => configuration.ProjectNameSick,
+            UserReportService.Special.Doctor => configuration.ProjectNameDoctor,
             _ => configuration.ProjectNameLegacyVacationHolidaySick
         };
     }

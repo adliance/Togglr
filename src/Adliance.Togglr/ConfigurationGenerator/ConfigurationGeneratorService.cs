@@ -3,17 +3,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Adliance.Togglr;
+namespace Adliance.Togglr.ConfigurationGenerator;
 
-public class TogglrConfigurationGeneratorService
+public class ConfigurationGeneratorService(ConfigurationGeneratorParameters configuration)
 {
-    private readonly TogglrConfigurationGeneratorParameters _configuration;
-
-    public TogglrConfigurationGeneratorService(TogglrConfigurationGeneratorParameters configuration)
-    {
-        _configuration = configuration;
-    }
-
     public async Task<ExitCode> Run()
     {
         var exampleConfiguration = new Configuration
@@ -69,7 +62,7 @@ public class TogglrConfigurationGeneratorService
         };
 
         var exampleConfigurationJsonString = JsonConvert.SerializeObject(exampleConfiguration, Formatting.Indented);
-        await File.WriteAllTextAsync(_configuration.ConfigurationFilePath, exampleConfigurationJsonString);
+        await File.WriteAllTextAsync(configuration.ConfigurationFilePath, exampleConfigurationJsonString);
 
         return ExitCode.Ok;
     }

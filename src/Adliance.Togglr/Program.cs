@@ -1,7 +1,9 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Adliance.Togglr.ConfigurationGenerator;
 using Adliance.Togglr.ProjectTimeReport;
+using Adliance.Togglr.Report;
 using CommandLine;
 using CommandLine.Text;
 using NLog;
@@ -21,7 +23,7 @@ public class Program
         SetupLogging();
         Logger = LogManager.GetCurrentClassLogger();
 
-        var parserResult = Parser.Default.ParseArguments<ProjectTimeReportParameter, TogglrReportGeneratorParameter, TogglrConfigurationGeneratorParameters>(args);
+        var parserResult = Parser.Default.ParseArguments<ProjectTimeReportParameter, ReportParameter, ConfigurationGeneratorParameters>(args);
         await parserResult.WithParsedAsync<ProjectTimeReportParameter>(async parameter =>
         {
             try
@@ -35,15 +37,15 @@ public class Program
             }
         });
 
-        await parserResult.WithParsedAsync<TogglrReportGeneratorParameter>(async configuration =>
+        await parserResult.WithParsedAsync<ReportParameter>(async configuration =>
         {
-            var exitCode = await new TogglrReportGeneratorService(configuration).Run();
+            var exitCode = await new ReportService(configuration).Run();
             Exit(exitCode);
         });
 
-        await parserResult.WithParsedAsync<TogglrConfigurationGeneratorParameters>(async configuration =>
+        await parserResult.WithParsedAsync<ConfigurationGeneratorParameters>(async configuration =>
         {
-            var exitCode = await new TogglrConfigurationGeneratorService(configuration).Run();
+            var exitCode = await new ConfigurationGeneratorService(configuration).Run();
             Exit(exitCode);
         });
 
