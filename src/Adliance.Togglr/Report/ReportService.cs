@@ -40,19 +40,23 @@ public class ReportService(ReportParameter reportParameter)
         Program.Logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
         var togglClient = new TogglClient();
-        await togglClient.DownloadEntriesAndStoreLocally(Configuration);
+        // await togglClient.DownloadEntriesAndStoreLocally(Configuration);
         AllEntries = togglClient.LoadEntriesLocallyAndFix(Configuration);
 
-        foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
+        Program.Logger.Info("Crunching the numbers ...");
+        UserDataService.CalculateForAllUsers(Configuration, AllEntries);
+
+        /*foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
         {
-            var userConfiguration = Configuration.Users.SingleOrDefault(x => x.Name.Equals(userPair.Key, StringComparison.InvariantCultureIgnoreCase));
-            if (userConfiguration == null)
+            var userData = UserDataService.Get(userPair.Key);
+
+            if (userData == null)
             {
                 Program.Logger.Warn($"No configuration found for {userPair.Key}. Ignoring this user ...");
                 continue;
             }
 
-            if (!userConfiguration.CreateReport)
+            if (!userData.User.CreateReport)
             {
                 Program.Logger.Warn($"No report should be created for {userPair.Key}. Ignoring this user ...");
                 continue;
@@ -63,23 +67,22 @@ public class ReportService(ReportParameter reportParameter)
             var sb = new StringBuilder();
             HtmlHelper.WriteHtmlBegin(sb);
             HtmlHelper.WriteDocumentTitle(sb, userPair.Key);
+            MonthStatistics.WriteEveryMonth(sb, userData);
 
-            userConfiguration.End = userConfiguration.End == default ? Configuration.End ?? DateTime.UtcNow.Date : userConfiguration.End;
-            if (Configuration.End.HasValue && Configuration.End.Value < userConfiguration.End) userConfiguration.End = Configuration.End.Value; // if we have a user end, and a global end, use the global end
-
-            var calculationService = new UserReportService(userConfiguration, userPair.Value, Configuration.HomeOfficeStart ?? DateTime.MaxValue);
-            MonthStatistics.WriteEveryMonth(sb, calculationService);
-
-            var loopDate = new DateTime(userConfiguration.End.Year, userConfiguration.End.Month, 1);
-            while (loopDate >= new DateTime(userConfiguration.Begin.Year, userConfiguration.Begin.Month, 1))
+            var loopDate = new DateTime(userData.User.End.Year, userData.User.End.Month, 1);
+            while (loopDate >= new DateTime(userData.User.Begin.Year, userData.User.Begin.Month, 1))
             {
-                DayStatistics.WriteEveryDayInMonth(Configuration, sb, loopDate, calculationService);
+                DayStatistics.WriteEveryDayInMonth(Configuration, sb, loopDate, userData);
                 loopDate = loopDate.AddMonths(-1);
             }
 
             HtmlHelper.WriteHtmlEnd(sb);
             await File.WriteAllTextAsync($"{reportParameter.OutputPath}{userPair.Key}.html", sb.ToString());
-        }
+        }*/
+
+        Program.Logger.Info("Working on the overview ...");
+        var overviewReportService = new OverviewReportService(reportParameter, Configuration);
+        await overviewReportService.Run();
 
         Program.Logger.Info("Everything done. Goodbye.");
         return ExitCode.Ok;

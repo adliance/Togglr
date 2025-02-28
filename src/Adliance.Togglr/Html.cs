@@ -24,6 +24,40 @@ public class Html
         HtmlHelper.WriteDocumentTitle(_sb, title);
     }
 
+    public void Spacer()
+    {
+        _sb.AppendLine("<br /><br /><br />");
+    }
+
+    public void TableStart(params string[] headers)
+    {
+        _sb.AppendLine("<div class=\"container\">");
+        _sb.AppendLine("<table class=\"table is-size-7 is-fullwidth\" style=\"margin: 2rem 0 0 0;\">");
+        _sb.AppendLine("<thead><tr>");
+        for (var i = 0; i < headers.Length; i++)
+        {
+            _sb.AppendLine($"<th {(i > 0 ? "class=\"has-text-right\"" : "")}>" + headers[i] + "</th>");
+        }
+        _sb.AppendLine("</tr></thead>");
+        _sb.AppendLine("<tbody>");
+    }
+
+    public void TableRow(params string[] cells)
+    {
+        _sb.AppendLine("<tr>");
+        for (var i = 0; i < cells.Length; i++)
+        {
+            _sb.AppendLine($"<td {(i > 0 ? "class=\"has-text-right\"" : "")}>" + cells[i] + "</td>");
+        }
+
+        _sb.AppendLine("</tr>");
+    }
+
+    public void TableEnd()
+    {
+        _sb.AppendLine("</tbody></table></div>");
+    }
+
     public void Write(string html)
     {
         _sb.Append(html);
@@ -34,7 +68,7 @@ public class Html
         _sb.AppendLine(html);
     }
 
-    public async Task WriteToFile(string fileName)
+    public async Task SaveToFile(string fileName)
     {
         HtmlHelper.WriteHtmlEnd(_sb);
 

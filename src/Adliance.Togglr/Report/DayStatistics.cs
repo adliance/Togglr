@@ -8,7 +8,7 @@ namespace Adliance.Togglr.Report;
 
 public static class DayStatistics
 {
-    public static void WriteEveryDayInMonth(Configuration configuration, StringBuilder sb, DateTime firstDayOfMonth, UserReportService userReportService)
+    public static void WriteEveryDayInMonth(Configuration configuration, StringBuilder sb, DateTime firstDayOfMonth, UserData userData)
     {
         var lastDayOfMonth = new DateTime(firstDayOfMonth.Year, firstDayOfMonth.Month, 1).AddMonths(1).AddDays(-1).Date;
         var shouldPrintMonth = !configuration.PrintDetailsStart.HasValue || firstDayOfMonth >= configuration.PrintDetailsStart.Value.Date;
@@ -44,7 +44,7 @@ public static class DayStatistics
                 printedWeeklySummary = false;
             }
 
-            if (userReportService.Days.TryGetValue(loopDate.Date, out var day))
+            if (userData.Days.TryGetValue(loopDate.Date, out var day))
             {
                 var shouldPrintDay = !configuration.PrintDetailsStart.HasValue || loopDate.Date >= configuration.PrintDetailsStart.Value.Date;
                 shouldPrintDay = shouldPrintDay && (!configuration.PrintDetailsEnd.HasValue || loopDate.Date <= configuration.PrintDetailsEnd.Value.Date);
@@ -53,9 +53,9 @@ public static class DayStatistics
                 WriteDay(configuration, sb, day);
             }
 
-            if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && userReportService.Weeks.ContainsKey((loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
+            if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && userData.Weeks.ContainsKey((loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
             {
-                WriteWeeklySummary(configuration, sb, loopDate.Date,  userReportService.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
+                WriteWeeklySummary(configuration, sb, loopDate.Date,  userData.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
                 printedWeeklySummary = true;
             }
 
@@ -67,11 +67,11 @@ public static class DayStatistics
             var lastDay = loopDate.Date.AddDays(-1);
             var shouldPrintDay = !configuration.PrintDetailsStart.HasValue || lastDay >= configuration.PrintDetailsStart.Value.Date;
             shouldPrintDay = shouldPrintDay && (!configuration.PrintDetailsEnd.HasValue || lastDay <= configuration.PrintDetailsEnd.Value.Date);
-            shouldPrintDay = shouldPrintDay && userReportService.Days.ContainsKey(lastDay);
+            shouldPrintDay = shouldPrintDay && userData.Days.ContainsKey(lastDay);
 
-            if (shouldPrintDay && userReportService.Weeks.ContainsKey((lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())))
+            if (shouldPrintDay && userData.Weeks.ContainsKey((lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())))
             {
-                WriteWeeklySummary(configuration, sb, lastDay, userReportService.Weeks[(lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())]);
+                WriteWeeklySummary(configuration, sb, lastDay, userData.Weeks[(lastDay.Year, lastDay.Month, lastDay.GetWeekNumber())]);
             }
         }
 
@@ -80,7 +80,7 @@ public static class DayStatistics
         sb.AppendLine("</div>");
     }
 
-    private static void WriteDay(Configuration configuration, StringBuilder sb, UserReportService.Day day)
+    private static void WriteDay(Configuration configuration, StringBuilder sb, UserData.Day day)
     {
         sb.AppendLine(CultureInfo.CurrentCulture, $"<tr class=\"{(day.Expected <= 0 ? "has-text-grey-light" : "")}\">");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<td>{day.Date:dddd, dd.MM.yyyy}</td>");
@@ -163,7 +163,7 @@ public static class DayStatistics
         sb.AppendLine("</tr>");
     }
 
-    private static void WriteWeeklySummary(Configuration configuration, StringBuilder sb, DateTime weekStart, UserReportService.Week week)
+    private static void WriteWeeklySummary(Configuration configuration, StringBuilder sb, DateTime weekStart, UserData.Week week)
     {
         sb.AppendLine("<tr class=\"has-text-weight-semibold\">");
         sb.AppendLine(CultureInfo.CurrentCulture, $"<td class=\"pb-5\">Summary KW {weekStart.GetWeekNumber()}</td>");

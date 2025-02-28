@@ -17,4 +17,10 @@ public static class DateTimeExtensions
         var vienna = DateTimeZoneProviders.Tzdb["Europe/Vienna"];
         return LocalDateTime.FromDateTime(dateTime).InZoneStrictly(DateTimeZone.Utc).WithZone(vienna).ToDateTimeUnspecified();
     }
+
+    public static string Format(this DateTime dateTime, bool includeWeekday = true)
+    {
+        if (includeWeekday) return dateTime.Date.ToString("dddd, dd.MM.yyyy", CultureInfo.CurrentCulture);
+        return dateTime.Date.ToString("dd.MM.yyyy", CultureInfo.CurrentCulture);
+    }
 }

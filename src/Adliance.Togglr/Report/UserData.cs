@@ -6,13 +6,13 @@ using TogglApi.Client.Reports.Models.Response;
 
 namespace Adliance.Togglr.Report;
 
-public class UserReportService
+public class UserData
 {
-    private UserConfiguration User { get; }
+    public UserConfiguration User { get; }
     public IDictionary<DateTime, Day> Days { get; }
-    public IDictionary<(int year, int month, int weekNumber), Week> Weeks { get; }
+    public IDictionary<(int year, int month, int weekNumber), Week> Weeks { get; private set; }
 
-    public UserReportService(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
+    public UserData(UserConfiguration user, IList<DetailedReportDatum> entries, DateTime homeOfficeStart)
     {
         User = user;
         var days = new List<Day>();
@@ -33,7 +33,8 @@ public class UserReportService
                     [Special.LegacyVacationHolidaySick] = dayPair.Value.Where(x => x.IsLegacyVacationHolidaySick()).Sum(x => (x.End - x.Start).TotalHours)
                 },
                 Expected = GetExpectedHours(dayPair.Key, false),
-                HasEntryForHomeOffice = dayPair.Value.Any(x => x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase)),
+                HasEntryForHomeOffice = dayPair.Value.Any(x =>
+                    x.Description.Contains("homeoffice", StringComparison.OrdinalIgnoreCase) || x.Description.Contains("home office", StringComparison.OrdinalIgnoreCase)),
                 Start = dayPair.Value.Any() ? dayPair.Value.Select(x => x.Start).Min() : null,
                 End = dayPair.Value.Any() ? dayPair.Value.Select(x => x.End).Max() : null,
                 BusinessTripHours = dayPair.Value.Where(x => x.Description.Contains("dienstreise", StringComparison.OrdinalIgnoreCase)).Sum(x => (x.End - x.Start).TotalHours)
@@ -78,22 +79,44 @@ public class UserReportService
 
         Days = days.OrderBy(x => x.Date).ToDictionary(x => x.Date, x => x);
         Weeks = new Dictionary<(int year, int month, int weekNumber), Week>();
-        AddMissingDays();
+        AddMissingDays(User.Begin.Date, User.End.Date);
+        Days = Days.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
         CalculateRollingOvertime();
         CalculateRollingVacation();
         CalculateWeeks();
         AddWarnings(user.IgnoreBreakWarnings);
     }
 
-    private void AddMissingDays()
+    public UserData(UserData userData, DateTime min, DateTime max)
     {
-        var loopDate = User.Begin.Date;
-        while (loopDate <= User.End.Date)
+        User = userData.User;
+        if (min.Date < User.Begin) min = User.Begin.Date;
+        if (max.Date > User.End) max = User.End.Date;
+        if (max.Date > DateTime.Today) max = DateTime.Today;
+
+        Days = userData.Days
+            .Where(x => x.Key >= min.Date && x.Key <= max.Date)
+            .ToDictionary(x => x.Key, x => x.Value);
+
+        Weeks = new Dictionary<(int year, int month, int weekNumber), Week>();
+        if (!Days.Any()) return;
+        AddMissingDays(min, max);
+        Days = Days.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+        CalculateRollingOvertime();
+        CalculateRollingVacation();
+        CalculateWeeks();
+        AddWarnings(userData.User.IgnoreBreakWarnings);
+    }
+
+    private void AddMissingDays(DateTime min, DateTime max)
+    {
+        var loopDate = min;
+        while (loopDate <= max.Date)
         {
             if (!Days.ContainsKey(loopDate))
             {
-                var previousDay = loopDate.AddDays(-1);
-                Days[loopDate] = new Day(loopDate, Days.TryGetValue(previousDay, out var value) ? value.RollingOvertime : 0)
+                Days.TryGetValue(loopDate.AddDays(-1), out var previousEntry);
+                Days[loopDate] = new Day(loopDate, previousEntry?.RollingOvertime ?? 0)
                 {
                     Expected = GetExpectedHours(loopDate, false)
                 };
@@ -181,7 +204,7 @@ public class UserReportService
         {
             if (!ignoreBreakWarnings)
             {
-                if (Math.Round(d.Total - d.Specials.Sum(x => x.Value),9) > 6 && !d.Has30MinutesBreak)
+                if (Math.Round(d.Total - d.Specials.Sum(x => x.Value), 9) > 6 && !d.Has30MinutesBreak)
                 {
                     d.Warnings.Add("Pause von mindestens 30 Minuten fehlt.");
                 }
@@ -308,6 +331,11 @@ public class UserReportService
         public double Overtime => Total - Expected;
         public double RollingOvertime { get; set; }
         public bool IsHomeOffice { get; set; }
+        public bool IsHoliday => Specials.Any(y => y is { Value: > 0, Key: Special.Holiday or Special.PersonalHoliday or Special.LegacyVacationHolidaySick });
+        public bool IsSickDay => Specials.Any(y => y is { Value: > 0, Key: Special.Sick });
+        public bool IsVacation => Specials.Any(y => y is { Value: > 0, Key: Special.Vacation });
+        public bool IsSpecialVacation => Specials.Any(y => y is { Value: > 0, Key: Special.SpecialVacation });
+
         public bool HasEntryForHomeOffice { get; set; }
         public double RollingVacationInDays { get; set; }
         public double RollingVacationInHours { get; set; }
@@ -324,7 +352,12 @@ public class UserReportService
                 {
                     if (s.Value > 0 && new[]
                         {
-                            Special.Holiday, Special.Sick, Special.Vacation, Special.PersonalHoliday, Special.SpecialVacation, Special.LegacyVacationHolidaySick
+                            Special.Holiday,
+                            Special.Sick,
+                            Special.Vacation,
+                            Special.PersonalHoliday,
+                            Special.SpecialVacation,
+                            Special.LegacyVacationHolidaySick
                         }.Contains(s.Key)) return false;
                 }
 
@@ -388,16 +421,16 @@ public class UserReportService
 
 public static class SpecialExtensions
 {
-    public static string GetName(this UserReportService.Special special, Configuration configuration)
+    public static string GetName(this UserData.Special special, Configuration configuration)
     {
         return special switch
         {
-            UserReportService.Special.Vacation => configuration.ProjectNameVacation,
-            UserReportService.Special.SpecialVacation => configuration.ProjectNameSpecialVacation,
-            UserReportService.Special.Holiday => configuration.ProjectNameHoliday,
-            UserReportService.Special.PersonalHoliday => configuration.ProjectNamePersonalHoliday,
-            UserReportService.Special.Sick => configuration.ProjectNameSick,
-            UserReportService.Special.Doctor => configuration.ProjectNameDoctor,
+            UserData.Special.Vacation => configuration.ProjectNameVacation,
+            UserData.Special.SpecialVacation => configuration.ProjectNameSpecialVacation,
+            UserData.Special.Holiday => configuration.ProjectNameHoliday,
+            UserData.Special.PersonalHoliday => configuration.ProjectNamePersonalHoliday,
+            UserData.Special.Sick => configuration.ProjectNameSick,
+            UserData.Special.Doctor => configuration.ProjectNameDoctor,
             _ => configuration.ProjectNameLegacyVacationHolidaySick
         };
     }

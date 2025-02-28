@@ -28,10 +28,10 @@ public static class HtmlHelper
         sb.AppendLine("</body></html>");
     }
 
-    public static void WriteDocumentTitle(StringBuilder sb, string user)
+    public static void WriteDocumentTitle(StringBuilder sb, string title)
     {
         sb.AppendLine("<section class=\"hero is-primary\"><div class=\"hero-body\">");
-        sb.AppendLine(CultureInfo.CurrentCulture, $"<div class=\"container\"><h1 class=\"title\">Arbeitszeit von {user}</h1></div>");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"<div class=\"container\"><h1 class=\"title\">{title}</h1></div>");
         sb.AppendLine("</div>\n</section>");
     }
 }
