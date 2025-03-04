@@ -40,13 +40,13 @@ public class ReportService(ReportParameter reportParameter)
         Program.Logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
         var togglClient = new TogglClient();
-        // await togglClient.DownloadEntriesAndStoreLocally(Configuration);
+        await togglClient.DownloadEntriesAndStoreLocally(Configuration);
         AllEntries = togglClient.LoadEntriesLocallyAndFix(Configuration);
 
         Program.Logger.Info("Crunching the numbers ...");
         UserDataService.CalculateForAllUsers(Configuration, AllEntries);
 
-        /*foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
+        foreach (var userPair in AllEntries.GroupByUser().OrderBy(x => x.Key))
         {
             var userData = UserDataService.Get(userPair.Key);
 
@@ -78,7 +78,7 @@ public class ReportService(ReportParameter reportParameter)
 
             HtmlHelper.WriteHtmlEnd(sb);
             await File.WriteAllTextAsync($"{reportParameter.OutputPath}{userPair.Key}.html", sb.ToString());
-        }*/
+        }
 
         Program.Logger.Info("Working on the overview ...");
         var overviewReportService = new OverviewReportService(reportParameter, Configuration);

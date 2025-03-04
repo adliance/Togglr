@@ -84,7 +84,7 @@ public class OverviewReportService(ReportParameter reportParameter, Configuratio
                 $"{holidayDays.HideWhenZero()}",
                 $"{sickDays.HideWhenZero()}" + (printPerYear ? " (" + (sickDays / years).ToString("N0", CultureInfo.CurrentCulture) + "/J)" : ""),
                 days.Count(x => x.IsSpecialVacation).HideWhenZero(),
-                $"{vacationDays.HideWhenZero()}" + (printPerYear ? " (" + (vacationDays / years).ToString("N0", CultureInfo.CurrentCulture) + "/J)" : ""),
+                vacationDays.HideWhenZero(),
                 $"<span title=\"{days.Last().RollingVacationInHours:N2} Stunden\">" + days.Last().RollingVacationInDays.FormatColor() + "</span>"
             );
         }
