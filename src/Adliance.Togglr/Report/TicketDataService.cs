@@ -67,7 +67,8 @@ public class TicketDataService(List<DetailedReportDatum> allEntries)
 
             if (ticket.Start > entry.Start) ticket.Start = entry.Start;
             if (ticket.End < entry.End) ticket.End = entry.End;
-            if (!ticket.Text.Contains(entry.Description, StringComparison.OrdinalIgnoreCase)) ticket.Text = (ticket.Text + ", " + entry.Description).Trim();
+            var cleanedDescription = CleanTicketDescription(entry.Description);
+            if (!ticket.Text.Contains(cleanedDescription, StringComparison.OrdinalIgnoreCase)) ticket.Text = (ticket.Text + ", " + cleanedDescription).Trim();
 
             var user = ticket.Users.SingleOrDefault(x => x.Name == entry.User);
             if (user == null)
@@ -112,12 +113,9 @@ public class TicketDataService(List<DetailedReportDatum> allEntries)
         }
     }
 
-    public static string? ParseTicketIdentifier(string text)
+    private static string? ParseTicketIdentifier(string text)
     {
-        var match = Regex.Match(text, @"(\#\d*)");
-        if (match.Success) return match.Groups[1].Value;
-
-        match = Regex.Match(text, @"(GPD\-\d*)");
+        var match = Regex.Match(text, @"(GPD\-\d*)");
         if (match.Success) return match.Groups[1].Value;
 
         match = Regex.Match(text, @"(AGOS\-\d*)");
@@ -126,9 +124,22 @@ public class TicketDataService(List<DetailedReportDatum> allEntries)
         match = Regex.Match(text, @"(TT\-\d*)");
         if (match.Success) return match.Groups[1].Value;
 
+        match = Regex.Match(text, @"(\#\d*)");
+        if (match.Success) return match.Groups[1].Value;
+
         match = Regex.Match(text, @"(\d{3,5})");
         if (match.Success) return match.Groups[1].Value;
 
         return null;
+    }
+
+    private static string CleanTicketDescription(string text)
+    {
+        text = text.Replace("(homeoffice)", "", StringComparison.OrdinalIgnoreCase);
+        text = text.Replace("homeoffice", "", StringComparison.OrdinalIgnoreCase);
+        text = text.Replace("(dienstreise)", "", StringComparison.OrdinalIgnoreCase);
+        text = text.Replace("dienstreise", "", StringComparison.OrdinalIgnoreCase);
+        text = text.Trim();
+        return text;
     }
 }
