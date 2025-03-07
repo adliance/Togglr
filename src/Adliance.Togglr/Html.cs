@@ -32,11 +32,11 @@ public class Html
     public void TableStart(params string[] headers)
     {
         _sb.AppendLine("<div class=\"container\">");
-        _sb.AppendLine("<table class=\"table is-size-7 is-fullwidth\" style=\"margin: 2rem 0 0 0;\">");
+        _sb.AppendLine("<table class=\"table is-size-7 is-fullwidth\" style=\"margin:2rem 0 0 0; max-width:100%;\">");
         _sb.AppendLine("<thead><tr>");
         for (var i = 0; i < headers.Length; i++)
         {
-            _sb.AppendLine($"<th {(i > 0 ? "class=\"has-text-right\"" : "")}>" + headers[i] + "</th>");
+            _sb.AppendLine($"<th {(i > 1 ? "class=\"has-text-right\"" : "")}>" + headers[i] + "</th>");
         }
         _sb.AppendLine("</tr></thead>");
         _sb.AppendLine("<tbody>");
@@ -47,7 +47,7 @@ public class Html
         _sb.AppendLine("<tr>");
         for (var i = 0; i < cells.Length; i++)
         {
-            _sb.AppendLine($"<td {(i > 0 ? "class=\"has-text-right\"" : "")}>" + cells[i] + "</td>");
+            _sb.AppendLine($"<td {(i > 1 ? "class=\"has-text-right\"" : "")}>" + cells[i] + "</td>");
         }
 
         _sb.AppendLine("</tr>");

@@ -43,6 +43,10 @@ public class ReportService(ReportParameter reportParameter)
         await togglClient.DownloadEntriesAndStoreLocally(Configuration);
         AllEntries = togglClient.LoadEntriesLocallyAndFix(Configuration);
 
+        Program.Logger.Info("Working on the tickets ...");
+        var ticketsService = new TicketReportService(reportParameter);
+        await ticketsService.Run(AllEntries);
+
         Program.Logger.Info("Crunching the numbers ...");
         UserDataService.CalculateForAllUsers(Configuration, AllEntries);
 

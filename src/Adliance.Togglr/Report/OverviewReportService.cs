@@ -10,8 +10,6 @@ public class OverviewReportService(ReportParameter reportParameter, Configuratio
 {
     private readonly Html _html = new(reportParameter);
 
-
-    // generate a unit test for that
     public async Task Run()
     {
         var minYear = UserDataService.MinDate.Year;

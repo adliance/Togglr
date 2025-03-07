@@ -19,6 +19,12 @@ public static class EntryExtensions
         return !NonBillableProjects.Any(x => (entry.Project ?? "").Contains(x, StringComparison.OrdinalIgnoreCase));
     }
 
+    public static bool IsSpecial(this DetailedReportDatum entry)
+    {
+        return entry.IsDoctor() || entry.IsSick() || entry.IsHoliday() || entry.IsPersonalHoliday() || entry.IsVacation() || entry.IsSpecialVacation() || entry.IsLegacyVacationHolidaySick();
+
+    }
+
     public static bool IsDoctor(this DetailedReportDatum entry)
     {
         return (entry.Project ?? "").Equals("Arztbesuch", StringComparison.OrdinalIgnoreCase);
