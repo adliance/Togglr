@@ -1,5 +1,8 @@
 name: 1.2.$(Rev:r)
 
+variables:
+  - group: shared_buddy_variable_group
+
 resources:
 - repo: self
 
@@ -12,7 +15,7 @@ trigger:
     - src/*
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
   
 steps:
 - checkout: self
@@ -21,7 +24,7 @@ steps:
 - task: UseDotNet@2
   displayName: "Install .NET"
   inputs:
-    version: '8.0.x'
+    version: '9.0.x'
     packageType: sdk
 
 - script: |
@@ -30,18 +33,6 @@ steps:
     cd src/Adliance.Togglr
     setversion $(Build.BuildNumber)
   displayName: 'Set Version'
-
-- task: UseDotNet@2
-  displayName: "Install .NET"
-  inputs:
-    version: '9.0.x'
-    packageType: sdk
-
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: './src/Adliance.Togglr/Adliance.Togglr.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -55,17 +46,18 @@ steps:
     command: pack
     packagesToPack: './src/Adliance.Togglr/Adliance.Togglr.csproj'
     versioningScheme: byBuildNumber
+    configuration: 'Release'
+    includeSymbols: false
+    outputDir: '$(Build.ArtifactStagingDirectory)'
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish Artifact
+- task: DotNetCoreCLI@2
+  displayName: DotNet Push
   inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-
-- task: NuGetCommand@2
-  displayName: NuGet Push
-  inputs:
-    command: push
+    command: custom
+    custom: nuget
     nuGetFeedType: external
     publishFeedCredentials: 'Public NuGet'
-
-
+    arguments: >
+      push "$(Build.ArtifactStagingDirectory)/*.nupkg"
+      --source "https://api.nuget.org/v3/index.json"
+      --api-key "$(nuget_api_key)"
