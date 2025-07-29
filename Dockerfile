@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS builder
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
 
 WORKDIR /src
 
@@ -10,10 +10,10 @@ RUN apt-get update -y && \
     dotnet pack && \
     dotnet tool install --global --add-source ./nupkg adliance.togglr
 
-FROM mcr.microsoft.com/dotnet/runtime:7.0 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime:9.0 AS runtime
 
 WORKDIR /app
-COPY --from=builder /src/Adliance.Togglr/bin/Debug/net7.0/publish/ /app/
+COPY --from=builder /src/Adliance.Togglr/bin/Release/net9.0/publish/ /app/
 RUN apt-get update -y && \
     apt-get upgrade -y
 
