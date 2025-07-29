@@ -11,8 +11,8 @@ public class TicketDataService(List<DetailedReportDatum> allEntries)
 {
     public List<TicketProjectData> Projects { get; } = new();
     public List<UnbookedTicketData> UnbookedTickets { get; } = new();
-    public int MinYear => Projects.SelectMany(x => x.Tickets).Min(x => x.End.Year);
-    public int MaxYear => Projects.SelectMany(x => x.Tickets).Max(x => x.End.Year);
+    public int MinYear => Projects.SelectMany(x => x.Tickets).Select(x => x.End.Year).DefaultIfEmpty(DateTime.Now.Year).Min();
+    public int MaxYear => Projects.SelectMany(x => x.Tickets).Select(x => x.End.Year).DefaultIfEmpty(DateTime.Now.Year).Max();
 
     public void Calculate()
     {
