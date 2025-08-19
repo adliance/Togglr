@@ -103,9 +103,10 @@ While team members use Toggl to track their normal working time to work-related 
 ```
 
 ### Optional: Cache specification
-Optionally a year can be specified, until which all entries remain in a cache file and won't be downloaded each time the tool gets started. The specified year is included in the cache:
+Since Togglr v1.3.x all entries are cached in `entries.json`. Each run per default the last 45 days are getting newly fetched from Togglr. This prevents exceeding the API limit for updating the entries.
+The value of 45 days can be adapted using the following configuration entry:
 ```
-  "cache_entries_until_year": 2021
+  "use_old_entries_x_days_back": 60
 ```
 
 ### Required: Team Members
