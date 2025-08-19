@@ -26,11 +26,12 @@ public class Configuration
     [JsonProperty("print_details_end")] public DateTime? PrintDetailsEnd { get; set; }
 
     [JsonProperty("homeoffice_start")] public DateTime? HomeOfficeStart { get; set; }
+
     /// <summary>
-    /// Optional property which allows caching all Toggl entries until a given year to avoid always downloading old entries, which won't get changed anyways.
-    /// (specified year included)
+    /// Determines X days in the past until which old entries are taken from cache file.
+    /// Newer entries >= X are always fetched freshly from Toggl as they may have been changed.
     /// </summary>
-    [JsonProperty("cache_entries_until_year")] public int? CacheEntriesUntilYear { get; set; }
+    [JsonProperty("use_old_entries_x_days_back")] public int UseOldEntriesXDaysBack { get; set; } = 45;
 }
 
 public class UserConfiguration

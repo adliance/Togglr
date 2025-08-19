@@ -1,4 +1,4 @@
-name: 1.2.$(Rev:r)
+name: 1.3.$(Rev:r)
 
 variables:
   - group: shared_buddy_variable_group

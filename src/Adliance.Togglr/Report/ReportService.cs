@@ -39,9 +39,9 @@ public class ReportService(ReportParameter reportParameter)
 
         Program.Logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
-        var togglClient = new TogglClient();
-        await togglClient.DownloadEntriesAndStoreLocally(Configuration);
-        AllEntries = togglClient.LoadEntriesLocallyAndFix(Configuration);
+        var togglClient = new TogglClient(Configuration);
+        await togglClient.DownloadEntriesAndStoreLocally();
+        AllEntries = togglClient.LoadEntriesLocallyAndFix();
 
         Program.Logger.Info("Working on the tickets ...");
         var ticketsService = new TicketReportService(reportParameter);
