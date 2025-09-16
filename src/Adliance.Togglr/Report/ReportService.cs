@@ -15,6 +15,8 @@ public class ReportService(ReportParameter reportParameter)
 {
     private Configuration Configuration { get; set; } = new();
     public static List<DetailedReportDatum> AllEntries = new();
+    private const string ConfigurationFileName = "configuration.json";
+    private readonly string _configurationFilePath = Path.Combine(reportParameter.ConfigurationPath, ConfigurationFileName);
 
     public async Task<ExitCode> Run()
     {
@@ -23,11 +25,11 @@ public class ReportService(ReportParameter reportParameter)
 
         try
         {
-            Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(reportParameter.ConfigurationFilePath)) ?? throw new Exception("Unable to deserialize configuration.");
+            Configuration = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(_configurationFilePath)) ?? throw new Exception("Unable to deserialize configuration.");
         }
         catch (Exception ex)
         {
-            Program.Logger.Fatal(ex, $"Unable to load {reportParameter.ConfigurationFilePath}: {ex.Message}");
+            Program.Logger.Fatal(ex, $"Unable to load {_configurationFilePath}: {ex.Message}");
             return ExitCode.Error;
         }
 
@@ -39,7 +41,7 @@ public class ReportService(ReportParameter reportParameter)
 
         Program.Logger.Trace($"Loaded configuration with {Configuration.Users.Count} configured users.");
 
-        var togglClient = new TogglClient(Configuration);
+        var togglClient = new TogglClient(Configuration, reportParameter);
         await togglClient.DownloadEntriesAndStoreLocally();
         AllEntries = togglClient.LoadEntriesLocallyAndFix();
 

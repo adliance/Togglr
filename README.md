@@ -165,13 +165,13 @@ Successfully built 1b138810eb50
 Successfully tagged local/togglr:latest
 ```
 
-After the successfull build you can generate the configuration  but you need to mount a directory into the container to have the configuration.json file available.
+After the successful build, you can generate the configuration, but you need to mount a directory into the container to have the configuration.json file available.
 ```
 mkdir conf && docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest generate-configuration -t /conf/configuration.json
 ```
 
-Change the configuration.json to your needs - see [Configuration](#configuration), afterwards you can run the container and the report is written to the conf path
+Change the configuration.json to your needs - see [Configuration](#configuration), afterwards you can run the container and the report is written to the conf path.
 
 ```
-docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest -c /conf/configuration.json -o /conf/
+docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest -c /conf/ -o /conf/
 ```
