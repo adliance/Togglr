@@ -35,6 +35,8 @@ togglr --help
 Adliance.Togglr
 Adliance GmbH
 
+  project-time              Generates a detailed report for a specific project and time range.
+  
   generate-report           (Default Verb) Generate a report with specified configuration
 
   generate-configuration    Generate a template 'configuration.json' in the current folder
@@ -74,7 +76,9 @@ togglr generate-report --help
 Adliance.Togglr
 Adliance GmbH
 
-  -c, --configuration    (Default: configuration.json) Path to configuration file
+  -c, --configuration    (Default: ./) Path to configuration folder which holds "configuration.json" and eventually "entries.json"
+  
+  -o, --output-path      (Default: ./) Output path for report
 
   --help                 Display this help screen.
 
