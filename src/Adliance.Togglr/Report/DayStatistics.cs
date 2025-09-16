@@ -55,7 +55,7 @@ public static class DayStatistics
 
             if (loopDate.Date.DayOfWeek == DayOfWeek.Sunday && userData.Weeks.ContainsKey((loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())))
             {
-                WriteWeeklySummary(configuration, sb, loopDate.Date,  userData.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
+                WriteWeeklySummary(configuration, sb, loopDate.Date, userData.Weeks[(loopDate.Date.Year, loopDate.Date.Month, loopDate.Date.GetWeekNumber())]);
                 printedWeeklySummary = true;
             }
 

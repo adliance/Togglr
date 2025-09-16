@@ -8,8 +8,8 @@ namespace Adliance.Togglr;
 
 public class Html
 {
-    private StringBuilder _sb;
-    private ReportParameter _configuration;
+    private readonly StringBuilder _sb;
+    private readonly ReportParameter _configuration;
 
     public Html(ReportParameter configuration)
     {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Adliance.Togglr.Report;
 using Newtonsoft.Json;
 using NLog;
 using TogglApi.Client.Reports;
@@ -13,10 +14,20 @@ using TogglApi.Client.Reports.Models.Response;
 
 namespace Adliance.Togglr;
 
-public class TogglClient (Configuration configuration)
+public class TogglClient
 {
+    private readonly Configuration _configuration;
+    private readonly string _entriesFilePath;
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-    private readonly DateTime _useOldEntriesUpToDate = DateTime.UtcNow.AddDays(-configuration.UseOldEntriesXDaysBack);
+    private readonly DateTime _useOldEntriesUpToDate;
+    private const int StartYear = 2015;
+
+    public TogglClient(Configuration configuration, ReportParameter reportParameter)
+    {
+        _configuration = configuration;
+        _useOldEntriesUpToDate = DateTime.UtcNow.AddDays(-_configuration.UseOldEntriesXDaysBack);
+        _entriesFilePath = Path.Combine(reportParameter.ConfigurationPath, "entries.json");
+    }
 
     private async Task<IEnumerable<DetailedReportDatum>> DownloadEntries(DateTime from, DateTime to)
     {
@@ -27,11 +38,11 @@ public class TogglClient (Configuration configuration)
         var detailedReports = (await client.GetDetailedReport(new DetailedReportConfig
         (
             userAgent: "Adliance.Togglr by Adliance GmbH",
-            workspaceId: configuration.WorkspaceId, //Adliance workspace
+            workspaceId: _configuration.WorkspaceId, //Adliance workspace
             since: from,
             until: to,
             billableOptions: BillableOptions.Both
-        ), apiToken: configuration.ApiToken)).Data.OrderBy(x => x.Start);
+        ), apiToken: _configuration.ApiToken)).Data.OrderBy(x => x.Start);
 
         return detailedReports;
     }
@@ -41,21 +52,21 @@ public class TogglClient (Configuration configuration)
         var entries = new List<DetailedReportDatum>();
 
         // check if file with old entries already exists; otherwise download all entries
-        if (!File.Exists("entries.json"))
+        if (!File.Exists(_entriesFilePath))
         {
-            for (var i = 2015; i <= DateTime.UtcNow.Year; i++)
+            for (var i = StartYear; i <= DateTime.UtcNow.Year; i++)
             {
                 entries.AddRange(await DownloadEntries(
                     new DateTime(i, 1, 1),
                     new DateTime(i, 12, 31).AddDays(1).AddSeconds(-1)));
             }
 
-            await File.WriteAllTextAsync("entries.json", JsonConvert.SerializeObject(entries));
+            await File.WriteAllTextAsync(_entriesFilePath, JsonConvert.SerializeObject(entries));
         }
         else
         {
             // determine last entry in existing file
-            var existingEntries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(await File.ReadAllTextAsync("entries.json")) ?? new List<DetailedReportDatum>();
+            var existingEntries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(await File.ReadAllTextAsync(_entriesFilePath)) ?? new List<DetailedReportDatum>();
             var lastRelevantEntry = existingEntries.Where(x => x.End < _useOldEntriesUpToDate).OrderBy(x => x.End).Last();
 
             // load new entries from date of last relevant entry on
@@ -66,7 +77,7 @@ public class TogglClient (Configuration configuration)
             var allEntries = existingEntries.Concat(entries).ToList();
             allEntries = allEntries.GroupBy(x => x.Id)
                 .Select(x => x.OrderByDescending(y => y.Updated).First()).ToList();
-            await File.WriteAllTextAsync("entries.json", JsonConvert.SerializeObject(allEntries));
+            await File.WriteAllTextAsync(_entriesFilePath, JsonConvert.SerializeObject(allEntries));
         }
 
         _logger.Info($"Downloaded a total of {entries.Count:N0} time entries.");
@@ -74,7 +85,7 @@ public class TogglClient (Configuration configuration)
 
     public List<DetailedReportDatum> LoadEntriesLocallyAndFix()
     {
-        var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText("entries.json")) ?? new List<DetailedReportDatum>();
+        var entries = JsonConvert.DeserializeObject<List<DetailedReportDatum>>(File.ReadAllText(_entriesFilePath)) ?? new List<DetailedReportDatum>();
 
         var fixedEntries = new List<DetailedReportDatum>();
         foreach (var entry in entries)

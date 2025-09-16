@@ -70,7 +70,6 @@ public class TicketReportService(ReportParameter reportParameter)
                         + "</td>");
             _html.Write("</tr>");
 
-
             foreach (var ticket in project.Tickets.OrderByDescending(x => x.Hours))
             {
                 _html.Write("<tr data-project=\"" + project.Name + "\" class=\"is-hidden\">");
