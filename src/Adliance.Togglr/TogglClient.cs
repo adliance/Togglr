@@ -17,7 +17,7 @@ namespace Adliance.Togglr;
 public class TogglClient
 {
     private readonly Configuration _configuration;
-    private static string _entriesFilePath = "";
+    private readonly string _entriesFilePath;
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private readonly DateTime _useOldEntriesUpToDate;
     private const int StartYear = 2015;

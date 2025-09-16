@@ -174,7 +174,7 @@ After the successful build, you can generate the configuration, but you need to 
 mkdir conf && docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest generate-configuration -t /conf/configuration.json
 ```
 
-Change the configuration.json to your needs - see [Configuration](#configuration), afterwards you can run the container and the report is written to the conf path.
+Change the configuration.json to your needs - see [Configuration](#configuration), afterwards you can run the container and the report is written to the output path.
 
 ```
 docker run --rm --name togglr -v ${PWD}/conf:/conf local/togglr:latest -c /conf/ -o /conf/
